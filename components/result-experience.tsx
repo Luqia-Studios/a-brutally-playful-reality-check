@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { APP_NAME } from "@/lib/brand";
+import { BrandMark } from "@/components/brand-mark";
 import { MeterArc } from "@/components/meter-arc";
 import { analyzePlan, PLAN_SESSION_KEY, type AnalysisResult } from "@/lib/analyze-plan";
 import { useViewportMetrics } from "@/lib/use-viewport-metrics";
@@ -81,7 +82,7 @@ function LoadingScreen({ index }: { index: number }) {
     <main className="viewport-shell">
       <div className="mx-auto flex h-full max-w-6xl flex-col px-5 py-5 sm:px-8 sm:py-6 lg:px-10 lg:py-8">
         <header className="flex items-center justify-between pb-4 sm:pb-5">
-          <p className="brand-stack text-[15px] font-semibold text-text sm:max-w-none sm:text-base">{APP_NAME}</p>
+          <BrandMark />
           <p className="text-sm text-black/44">Analisi</p>
         </header>
 
@@ -242,7 +243,7 @@ export function ResultExperience() {
     <main className="viewport-shell">
       <div className="mx-auto flex h-full max-w-6xl flex-col px-5 py-5 sm:px-8 sm:py-6 lg:px-10 lg:py-8">
         <header className="flex items-center justify-between pb-4 sm:pb-5">
-          <p className="brand-stack text-[15px] font-semibold text-text sm:max-w-none sm:text-base">{APP_NAME}</p>
+          <BrandMark />
           <button type="button" onClick={handleBackHome} className="text-sm text-black/48 transition hover:text-text">
             Torna all&apos;inizio
           </button>

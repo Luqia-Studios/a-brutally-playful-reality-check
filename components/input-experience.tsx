@@ -2,7 +2,7 @@
 
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { APP_NAME } from "@/lib/brand";
+import { BrandMark } from "@/components/brand-mark";
 import { MeterArc } from "@/components/meter-arc";
 import { useViewportMetrics } from "@/lib/use-viewport-metrics";
 import {
@@ -89,7 +89,7 @@ export function InputExperience() {
         }`}
       >
         <header className={`flex items-center justify-between ${keyboardOpen ? "pb-3" : "pb-4 sm:pb-5"}`}>
-          <p className="brand-stack text-[15px] font-semibold text-text sm:max-w-none sm:text-base">{APP_NAME}</p>
+          <BrandMark />
           <p className="text-xs uppercase tracking-[0.18em] text-black/34 sm:text-sm sm:normal-case sm:tracking-normal">
             Esperimento 01
           </p>
