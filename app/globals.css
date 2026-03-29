@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --app-height: 100dvh;
+  --keyboard-offset: 0px;
+  --canvas: #f6f5f2;
+  --surface: #ffffff;
+  --text: #111111;
+  --muted: #6b6b6b;
+  --line: #e7e4dd;
+  --sand: #d9d3c8;
+  --accent: #ff6b3d;
+  --accent-deep: #e4572e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+  background: var(--canvas);
+}
+
+body {
+  min-height: 100dvh;
+  margin: 0;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 12% 18%, rgba(255, 107, 61, 0.1), transparent 24%),
+    radial-gradient(circle at 90% 14%, rgba(217, 211, 200, 0.34), transparent 22%),
+    linear-gradient(180deg, #f8f7f4 0%, #f6f5f2 100%);
+  font-family: "Aptos", "Segoe UI", "Helvetica Neue", Arial, system-ui, sans-serif;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(17, 17, 17, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17, 17, 17, 0.022) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(circle at center, black 48%, transparent 100%);
+  opacity: 0.55;
+}
+
+::selection {
+  color: #fff;
+  background: rgba(228, 87, 46, 0.88);
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+.surface-panel {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 18px 42px rgba(17, 17, 17, 0.06);
+}
+
+.eyebrow {
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.hairline {
+  border-color: rgba(17, 17, 17, 0.08);
+}
+
+.muted-copy {
+  color: rgba(17, 17, 17, 0.62);
+}
+
+.soft-copy {
+  color: rgba(17, 17, 17, 0.42);
+}
+
+.accent-ring {
+  box-shadow: 0 0 0 4px rgba(255, 107, 61, 0.12);
+}
+
+.meter-glow {
+  background: radial-gradient(circle at center, rgba(255, 107, 61, 0.14), transparent 66%);
+}
+
+.viewport-shell {
+  min-height: var(--app-height);
+  height: var(--app-height);
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.brand-stack {
+  max-width: 12rem;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+}
+
+.micro-chip {
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: rgba(255, 255, 255, 0.82);
+}
