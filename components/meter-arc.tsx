@@ -3,6 +3,7 @@ type MeterArcProps = {
   size?: "sm" | "lg";
   label?: string;
   showScale?: boolean;
+  className?: string;
 };
 
 function accentForScore(score: number) {
@@ -25,15 +26,16 @@ export function MeterArc({
   score,
   size = "lg",
   label = "Indice di delirio",
-  showScale = true
+  showScale = true,
+  className = ""
 }: MeterArcProps) {
   const safeScore = Math.max(0, Math.min(100, score));
-  const radius = size === "lg" ? 118 : 86;
-  const centerX = size === "lg" ? 160 : 120;
-  const centerY = size === "lg" ? 160 : 118;
+  const radius = size === "lg" ? 118 : 92;
+  const centerX = size === "lg" ? 160 : 128;
+  const centerY = size === "lg" ? 160 : 124;
   const strokeWidth = size === "lg" ? 14 : 11;
-  const width = size === "lg" ? 320 : 240;
-  const height = size === "lg" ? 210 : 156;
+  const width = size === "lg" ? 320 : 256;
+  const height = size === "lg" ? 210 : 164;
   const startX = centerX - radius;
   const endX = centerX + radius;
   const path = `M ${startX} ${centerY} A ${radius} ${radius} 0 0 1 ${endX} ${centerY}`;
@@ -43,7 +45,7 @@ export function MeterArc({
   const accent = accentForScore(safeScore);
 
   return (
-    <div className="relative mx-auto w-full max-w-[320px]">
+    <div className={`relative mx-auto w-full max-w-[320px] ${className}`}>
       <div className="meter-glow absolute inset-x-8 top-5 h-40 rounded-full blur-2xl" />
       <svg
         viewBox={`0 0 ${width} ${height}`}

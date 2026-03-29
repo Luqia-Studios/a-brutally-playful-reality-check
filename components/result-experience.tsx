@@ -86,7 +86,7 @@ function LoadingScreen({ index }: { index: number }) {
         </header>
 
         <section className="flex flex-1 items-center justify-center">
-          <div className="surface-panel flex w-full max-w-3xl flex-col items-center rounded-[32px] px-5 py-8 text-center sm:px-8 sm:py-10">
+          <div className="surface-panel flex w-full max-w-3xl flex-col items-center rounded-[32px] px-5 py-10 text-center sm:px-8 sm:py-10">
             <div className="space-y-6">
               <div className="space-y-3">
                 <p className="eyebrow text-[11px] text-black/34">Valutazione</p>
@@ -249,17 +249,17 @@ export function ResultExperience() {
         </header>
 
         <section className="flex min-h-0 flex-1 items-center">
-          <div className="surface-panel grid h-full min-h-0 w-full gap-5 overflow-hidden rounded-[32px] p-4 sm:p-5 lg:grid-cols-[0.45fr_0.55fr] lg:gap-8 lg:rounded-[36px] lg:p-6">
+          <div className="surface-panel grid h-full min-h-0 w-full gap-4 overflow-hidden rounded-[32px] p-4 sm:gap-5 sm:p-5 lg:grid-cols-[0.45fr_0.55fr] lg:gap-8 lg:rounded-[36px] lg:p-6">
             <div className="order-2 flex min-h-0 flex-col justify-between gap-4 lg:order-1 lg:gap-5">
               <div className="space-y-4">
                 <div className="space-y-3">
-                  <h1 className="max-w-[24rem] font-display text-[30px] font-semibold leading-[0.98] tracking-[-0.05em] text-text sm:text-[38px] lg:text-[48px]">
+                  <h1 className="max-w-[24rem] font-display text-[34px] font-semibold leading-[0.96] tracking-[-0.06em] text-text sm:text-[38px] lg:text-[48px]">
                     {result.verdict}
                   </h1>
-                  <p className="max-w-[28rem] text-sm leading-7 text-black/62 sm:text-base">
+                  <p className="max-w-[28rem] text-[15px] leading-7 text-black/62 sm:text-base">
                     {result.sintesi}
                   </p>
-                  <p className="max-w-[26rem] text-[17px] leading-7 tracking-[-0.02em] text-text sm:text-[19px]">
+                  <p className="max-w-[26rem] text-[18px] leading-7 tracking-[-0.02em] text-text sm:text-[19px]">
                     {result.fraseFinale}
                   </p>
                 </div>
@@ -303,21 +303,26 @@ export function ResultExperience() {
             </div>
 
             <div className="order-1 grid min-h-0 gap-4 lg:order-2 lg:grid-rows-[auto_auto_1fr]">
-              <div className="grid grid-cols-[0.92fr_1.08fr] items-center gap-3 rounded-[28px] border hairline bg-[#FBFAF7] px-4 py-4 sm:px-5 sm:py-5">
+              <div className="grid gap-4 rounded-[28px] border hairline bg-[#FBFAF7] px-4 py-5 sm:px-5 sm:py-5 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
                 <div className="flex items-center justify-center">
-                  <MeterArc score={animatedScore} size="sm" showScale={false} />
+                  <MeterArc score={animatedScore} className="max-w-[280px] sm:max-w-[300px] lg:max-w-[260px]" showScale={false} />
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-3 text-center lg:text-left">
                   <p className="eyebrow text-[11px] text-black/34">Indice di delirio</p>
-                  <div className="flex items-end gap-2">
-                    <span className="font-display text-[46px] font-semibold leading-none tracking-[-0.08em] text-text sm:text-[58px] lg:text-[70px]">
+                  <div className="flex items-end justify-center gap-2 lg:justify-start">
+                    <span className="font-display text-[58px] font-semibold leading-none tracking-[-0.08em] text-text sm:text-[62px] lg:text-[70px]">
                       {animatedScore}
                     </span>
                     <span className="pb-2 text-sm text-black/42">/ 100</span>
                   </div>
-                  <div className="inline-flex rounded-full border hairline bg-white px-3 py-2 text-sm text-black/60">
-                    {result.categoria}
+                  <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
+                    <div className="inline-flex rounded-full border hairline bg-white px-3 py-2 text-sm text-black/60">
+                      {result.categoria}
+                    </div>
+                    <div className="micro-chip rounded-full px-3 py-2 text-sm text-black/56">
+                      {result.tratti[0]}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -335,7 +340,7 @@ export function ResultExperience() {
 
               <div className="rounded-[24px] border hairline bg-[#FBFAF7] px-4 py-4">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-black/34">La tua idea</p>
-                <p className="mt-2 max-h-[96px] overflow-hidden text-sm leading-7 text-text sm:text-[15px]">
+                <p className="mt-2 max-h-[112px] overflow-hidden text-sm leading-7 text-text sm:text-[15px]">
                   &ldquo;{plan}&rdquo;
                 </p>
               </div>
