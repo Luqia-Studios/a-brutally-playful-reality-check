@@ -104,7 +104,7 @@ export function InputExperience() {
         >
           <div
             className={`flex min-h-0 flex-col ${
-              keyboardOpen ? "justify-start gap-3" : "justify-between gap-5 lg:justify-center lg:gap-6"
+              keyboardOpen ? "justify-start gap-3" : "justify-start gap-4 sm:gap-5 lg:justify-center lg:gap-6"
             }`}
           >
             <div className={`${keyboardOpen ? "space-y-2" : "space-y-3 sm:space-y-4"}`}>
@@ -121,34 +121,6 @@ export function InputExperience() {
                 </p>
               </div>
             </div>
-
-            {!keyboardOpen ? (
-              <div className="grid gap-3 rounded-[28px] border hairline bg-white/72 p-4 lg:hidden">
-                <div className="flex flex-wrap gap-2">
-                  <span className="micro-chip rounded-full px-3 py-2 text-xs uppercase tracking-[0.16em] text-black/42">
-                    rapido
-                  </span>
-                  <span className="micro-chip rounded-full px-3 py-2 text-xs uppercase tracking-[0.16em] text-black/42">
-                    0-100
-                  </span>
-                  <span className="micro-chip rounded-full px-3 py-2 text-xs uppercase tracking-[0.16em] text-black/42">
-                    share
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-[1.08fr_0.92fr] items-end gap-3">
-                  <div className="space-y-2">
-                    <p className="eyebrow text-[11px] text-black/34">Preview</p>
-                    <p className="text-sm leading-6 text-black/56">
-                      Un piano entra. Un verdetto esce.
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-end">
-                    <MeterArc score={previewScore} size="sm" label="Anteprima" showScale={false} />
-                  </div>
-                </div>
-              </div>
-            ) : null}
 
             <div className="hidden lg:block">
               <MeterArc score={64} size="sm" label="Anteprima" showScale={false} />
