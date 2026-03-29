@@ -95,7 +95,9 @@ textarea {
 }
 
 .viewport-shell {
+  min-height: 100svh;
   min-height: var(--app-height);
+  height: 100svh;
   height: var(--app-height);
   overflow: hidden;
   overscroll-behavior: contain;
@@ -109,21 +111,21 @@ textarea {
 
 .brand-mark {
   display: flex;
-  max-width: 15rem;
+  max-width: clamp(11.5rem, 52vw, 19rem);
   flex-direction: column;
-  gap: 0.08rem;
-  line-height: 0.92;
+  gap: 0.02rem;
+  line-height: 0.9;
   letter-spacing: -0.055em;
 }
 
 .brand-mark-top {
-  font-size: clamp(1.05rem, 2.8vw, 1.25rem);
+  font-size: clamp(1.14rem, 4.2vw, 1.45rem);
   font-weight: 650;
   color: rgba(17, 17, 17, 0.76);
 }
 
 .brand-mark-bottom {
-  font-size: clamp(1.45rem, 4.3vw, 2rem);
+  font-size: clamp(2.35rem, 8.6vw, 2.8rem);
   font-weight: 800;
   color: var(--text);
 }
@@ -136,4 +138,22 @@ textarea {
 .micro-chip {
   border: 1px solid rgba(17, 17, 17, 0.08);
   background: rgba(255, 255, 255, 0.82);
+}
+
+@media (max-width: 640px) {
+  .surface-panel {
+    box-shadow: 0 22px 48px rgba(17, 17, 17, 0.07);
+  }
+
+  .brand-mark {
+    max-width: 13.8rem;
+  }
+
+  .brand-mark-top {
+    font-size: 1.22rem;
+  }
+
+  .brand-mark-bottom {
+    font-size: 2.75rem;
+  }
 }

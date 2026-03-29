@@ -30,12 +30,12 @@ export function MeterArc({
   className = ""
 }: MeterArcProps) {
   const safeScore = Math.max(0, Math.min(100, score));
-  const radius = size === "lg" ? 118 : 92;
-  const centerX = size === "lg" ? 160 : 128;
-  const centerY = size === "lg" ? 160 : 124;
-  const strokeWidth = size === "lg" ? 14 : 11;
-  const width = size === "lg" ? 320 : 256;
-  const height = size === "lg" ? 210 : 164;
+  const radius = size === "lg" ? 122 : 100;
+  const centerX = size === "lg" ? 164 : 138;
+  const centerY = size === "lg" ? 164 : 132;
+  const strokeWidth = size === "lg" ? 14 : 12;
+  const width = size === "lg" ? 328 : 276;
+  const height = size === "lg" ? 216 : 176;
   const startX = centerX - radius;
   const endX = centerX + radius;
   const path = `M ${startX} ${centerY} A ${radius} ${radius} 0 0 1 ${endX} ${centerY}`;
@@ -45,8 +45,8 @@ export function MeterArc({
   const accent = accentForScore(safeScore);
 
   return (
-    <div className={`relative mx-auto w-full max-w-[320px] ${className}`}>
-      <div className="meter-glow absolute inset-x-8 top-5 h-40 rounded-full blur-2xl" />
+    <div className={`relative mx-auto w-full max-w-[340px] ${className}`}>
+      <div className="meter-glow absolute inset-x-8 top-5 h-44 rounded-full blur-2xl" />
       <svg
         viewBox={`0 0 ${width} ${height}`}
         className="relative z-10 w-full"
@@ -70,8 +70,8 @@ export function MeterArc({
           pathLength={100}
           strokeDasharray={`${safeScore} 100`}
         />
-        <circle cx={dotX} cy={dotY} r={size === "lg" ? 7 : 5.5} fill={accent} />
-        <circle cx={dotX} cy={dotY} r={size === "lg" ? 14 : 10} fill={accent} opacity="0.14" />
+        <circle cx={dotX} cy={dotY} r={size === "lg" ? 7 : 6} fill={accent} />
+        <circle cx={dotX} cy={dotY} r={size === "lg" ? 14 : 11} fill={accent} opacity="0.14" />
       </svg>
 
       {showScale ? (

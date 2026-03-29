@@ -31,7 +31,7 @@ function IndicatorRow({
 
   return (
     <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3 text-sm">
+      <div className="flex items-center justify-between gap-3 text-[15px] sm:text-sm">
         <span className="text-black/58">{label}</span>
         <span className="font-medium text-text">{value}</span>
       </div>
@@ -80,10 +80,10 @@ function useAnimatedNumber(target: number) {
 function LoadingScreen({ index }: { index: number }) {
   return (
     <main className="viewport-shell">
-      <div className="mx-auto flex h-full max-w-6xl flex-col px-5 py-5 sm:px-8 sm:py-6 lg:px-10 lg:py-8">
-        <header className="flex items-center justify-between pb-4 sm:pb-5">
+      <div className="mx-auto flex h-full max-w-6xl flex-col px-4 py-4 sm:px-8 sm:py-6 lg:px-10 lg:py-8">
+        <header className="flex items-start justify-between pb-3 sm:pb-5">
           <BrandMark />
-          <p className="text-sm text-black/44">Analisi</p>
+          <p className="text-[15px] text-black/44">Analisi</p>
         </header>
 
         <section className="flex flex-1 items-center justify-center">
@@ -91,7 +91,7 @@ function LoadingScreen({ index }: { index: number }) {
             <div className="space-y-6">
               <div className="space-y-3">
                 <p className="eyebrow text-[11px] text-black/34">Valutazione</p>
-                <p className="font-display text-[30px] font-semibold leading-[1] tracking-[-0.05em] text-text sm:text-[38px]">
+                <p className="font-display text-[38px] font-semibold leading-[0.96] tracking-[-0.05em] text-text sm:text-[40px]">
                   {LOADING_STEPS[index]}
                 </p>
               </div>
@@ -105,7 +105,7 @@ function LoadingScreen({ index }: { index: number }) {
                 />
               </div>
 
-              <p className="text-sm text-black/40">{LOADING_PROGRESS[index]} / 100</p>
+              <p className="text-[15px] text-black/40">{LOADING_PROGRESS[index]} / 100</p>
             </div>
           </div>
         </section>
@@ -241,26 +241,26 @@ export function ResultExperience() {
 
   return (
     <main className="viewport-shell">
-      <div className="mx-auto flex h-full max-w-6xl flex-col px-5 py-5 sm:px-8 sm:py-6 lg:px-10 lg:py-8">
-        <header className="flex items-center justify-between pb-4 sm:pb-5">
+      <div className="mx-auto flex h-full max-w-6xl flex-col px-4 py-4 sm:px-8 sm:py-6 lg:px-10 lg:py-8">
+        <header className="flex items-start justify-between pb-3 sm:pb-5">
           <BrandMark />
-          <button type="button" onClick={handleBackHome} className="text-sm text-black/48 transition hover:text-text">
+          <button type="button" onClick={handleBackHome} className="text-[15px] text-black/48 transition hover:text-text">
             Torna all&apos;inizio
           </button>
         </header>
 
-        <section className="flex min-h-0 flex-1 items-center">
+        <section className="flex min-h-0 flex-1 items-stretch">
           <div className="surface-panel grid h-full min-h-0 w-full gap-4 overflow-hidden rounded-[32px] p-4 sm:gap-5 sm:p-5 lg:grid-cols-[0.45fr_0.55fr] lg:gap-8 lg:rounded-[36px] lg:p-6">
             <div className="order-2 flex min-h-0 flex-col justify-between gap-4 lg:order-1 lg:gap-5">
               <div className="space-y-4">
                 <div className="space-y-3">
-                  <h1 className="max-w-[24rem] font-display text-[34px] font-semibold leading-[0.96] tracking-[-0.06em] text-text sm:text-[38px] lg:text-[48px]">
+                  <h1 className="max-w-[24rem] font-display text-[44px] font-semibold leading-[0.92] tracking-[-0.06em] text-text sm:text-[42px] lg:text-[48px]">
                     {result.verdict}
                   </h1>
-                  <p className="max-w-[28rem] text-[15px] leading-7 text-black/62 sm:text-base">
+                  <p className="max-w-[28rem] text-[18px] leading-8 text-black/62 sm:text-[17px]">
                     {result.sintesi}
                   </p>
-                  <p className="max-w-[26rem] text-[18px] leading-7 tracking-[-0.02em] text-text sm:text-[19px]">
+                  <p className="max-w-[26rem] text-[22px] leading-9 tracking-[-0.02em] text-text sm:text-[20px]">
                     {result.fraseFinale}
                   </p>
                 </div>
@@ -270,7 +270,7 @@ export function ResultExperience() {
                 {result.tratti.map((trait) => (
                   <span
                     key={trait}
-                    className="micro-chip rounded-full px-3 py-2 text-sm text-black/60"
+                    className="micro-chip rounded-full px-3.5 py-2 text-[16px] text-black/60 sm:text-[15px]"
                   >
                     {trait}
                   </span>
@@ -281,14 +281,14 @@ export function ResultExperience() {
                 <button
                   type="button"
                   onClick={handleRetry}
-                  className="rounded-full bg-text px-5 py-4 text-sm font-medium text-white transition hover:bg-[#262626]"
+                  className="rounded-full bg-text px-5 py-4 text-[17px] font-medium text-white transition hover:bg-[#262626] sm:text-[15px]"
                 >
                   Prova un altro piano
                 </button>
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="rounded-full border hairline bg-white px-5 py-4 text-sm font-medium text-text transition hover:bg-[#FBFAF7]"
+                  className="rounded-full border hairline bg-white px-5 py-4 text-[17px] font-medium text-text transition hover:bg-[#FBFAF7] sm:text-[15px]"
                 >
                   {shareState === "shared" ? "Risultato copiato" : "Condividi"}
                 </button>
@@ -297,7 +297,7 @@ export function ResultExperience() {
               <button
                 type="button"
                 onClick={handleCopyVerdict}
-                className="w-fit text-sm font-medium text-black/52 transition hover:text-text lg:mt-auto"
+                className="w-fit text-[16px] font-medium text-black/52 transition hover:text-text sm:text-[15px] lg:mt-auto"
               >
                 {shareState === "copied" ? "Verdetto copiato" : "Copia il verdetto"}
               </button>
@@ -306,22 +306,22 @@ export function ResultExperience() {
             <div className="order-1 grid min-h-0 gap-4 lg:order-2 lg:grid-rows-[auto_auto_1fr]">
               <div className="grid gap-4 rounded-[28px] border hairline bg-[#FBFAF7] px-4 py-5 sm:px-5 sm:py-5 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
                 <div className="flex items-center justify-center">
-                  <MeterArc score={animatedScore} className="max-w-[280px] sm:max-w-[300px] lg:max-w-[260px]" showScale={false} />
+                  <MeterArc score={animatedScore} className="max-w-[320px] sm:max-w-[300px] lg:max-w-[260px]" showScale={false} />
                 </div>
 
                 <div className="space-y-3 text-center lg:text-left">
-                  <p className="eyebrow text-[11px] text-black/34">Indice di delirio</p>
+                  <p className="eyebrow text-[12px] text-black/34">Indice di delirio</p>
                   <div className="flex items-end justify-center gap-2 lg:justify-start">
-                    <span className="font-display text-[58px] font-semibold leading-none tracking-[-0.08em] text-text sm:text-[62px] lg:text-[70px]">
+                    <span className="font-display text-[72px] font-semibold leading-none tracking-[-0.08em] text-text sm:text-[64px] lg:text-[70px]">
                       {animatedScore}
                     </span>
-                    <span className="pb-2 text-sm text-black/42">/ 100</span>
+                    <span className="pb-2 text-[16px] text-black/42 sm:text-[15px]">/ 100</span>
                   </div>
                   <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
-                    <div className="inline-flex rounded-full border hairline bg-white px-3 py-2 text-sm text-black/60">
+                    <div className="inline-flex rounded-full border hairline bg-white px-3 py-2 text-[16px] text-black/60 sm:text-[15px]">
                       {result.categoria}
                     </div>
-                    <div className="micro-chip rounded-full px-3 py-2 text-sm text-black/56">
+                    <div className="micro-chip rounded-full px-3 py-2 text-[16px] text-black/56 sm:text-[15px]">
                       {result.tratti[0]}
                     </div>
                   </div>
@@ -341,7 +341,7 @@ export function ResultExperience() {
 
               <div className="rounded-[24px] border hairline bg-[#FBFAF7] px-4 py-4">
                 <p className="text-[11px] uppercase tracking-[0.18em] text-black/34">La tua idea</p>
-                <p className="mt-2 max-h-[112px] overflow-hidden text-sm leading-7 text-text sm:text-[15px]">
+                <p className="mt-2 max-h-[112px] overflow-hidden text-[16px] leading-8 text-text sm:text-[15px]">
                   &ldquo;{plan}&rdquo;
                 </p>
               </div>
