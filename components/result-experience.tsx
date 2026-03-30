@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { APP_NAME } from "@/lib/brand";
 import { SpaceBackdrop } from "@/components/space-backdrop";
 import { SpaceWordmark } from "@/components/space-wordmark";
 import { analyzePlan, PLAN_SESSION_KEY, type AnalysisResult } from "@/lib/analyze-plan";
@@ -133,7 +132,7 @@ export function ResultExperience() {
 
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loadingStep, setLoadingStep] = useState(0);
-  const [shareState, setShareState] = useState<"idle" | "shared" | "copied">("idle");
+  const [shareState, setShareState] = useState<"idle" | "copied">("idle");
 
   useEffect(() => {
     const storedPlan = sessionStorage.getItem(PLAN_SESSION_KEY);
@@ -197,23 +196,18 @@ export function ResultExperience() {
     }, 2200);
   }
 
-  async function copyPayload(payload: string, nextState: "shared" | "copied") {
+  async function copyPayload(payload: string) {
     try {
-      if (nextState === "shared" && typeof navigator.share === "function") {
-        await navigator.share({
-          title: APP_NAME,
-          text: payload
-        });
-      } else if (navigator.clipboard) {
+      if (navigator.clipboard) {
         await navigator.clipboard.writeText(payload);
       }
 
-      setShareState(nextState);
+      setShareState("copied");
       resetShareState();
     } catch {
       if (navigator.clipboard) {
         await navigator.clipboard.writeText(payload);
-        setShareState(nextState);
+        setShareState("copied");
         resetShareState();
       }
     }
@@ -224,20 +218,12 @@ export function ResultExperience() {
     router.push("/");
   }
 
-  async function handleShare() {
-    if (!result) {
-      return;
-    }
-
-    await copyPayload(result.shareText, "shared");
-  }
-
   async function handleCopyVerdict() {
     if (!result) {
       return;
     }
 
-    await copyPayload(evaluationText, "copied");
+    await copyPayload(evaluationText);
   }
 
   if (!result) {
@@ -280,14 +266,12 @@ export function ResultExperience() {
                 ))}
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  className="rounded-full border border-[#F39241] bg-[#F39241] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-black shadow-[0_10px_28px_rgba(243,146,65,0.28)] transition duration-300 hover:bg-[#FFB066]"
-                >
-                  {shareState === "shared" ? "Risultato copiato" : "Condividi"}
-                </button>
+              <div className="rounded-[18px] border border-white/10 bg-[#0D0D0D] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] text-left">
+                <p className="text-[10px] uppercase tracking-[0.18em] text-[#B2A396]">Il tuo piano</p>
+                <p className="mt-2 text-[15px] leading-[1.45] text-[#F4EDE5] sm:text-[16px]">{result.piano}</p>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2">
                 <button
                   type="button"
                   onClick={handleRetry}

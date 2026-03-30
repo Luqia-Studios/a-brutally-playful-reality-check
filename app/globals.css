@@ -176,6 +176,20 @@ textarea {
   text-align: center;
 }
 
+.space-wordmark .space-home-top {
+  font-size: clamp(1.2rem, 3.8vw, 1.65rem);
+}
+
+.space-wordmark .space-home-playful {
+  font-size: clamp(4.2rem, 13vw, 6.8rem);
+  line-height: 0.88;
+}
+
+.space-wordmark .space-home-reality {
+  font-size: clamp(3.35rem, 10.4vw, 5.6rem);
+  line-height: 0.9;
+}
+
 .space-wordmark-stack {
   display: flex;
   flex-direction: column;
