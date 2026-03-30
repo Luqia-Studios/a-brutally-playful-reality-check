@@ -66,15 +66,8 @@ export function InputExperience() {
           keyboardOpen ? "min-h-full py-4 sm:py-6 lg:py-8" : "min-h-full py-4 sm:py-6 lg:h-full lg:py-8"
         }`}
       >
-        <header
-          className={`flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between ${
-            keyboardOpen ? "pb-3" : "pb-3 sm:pb-5"
-          }`}
-        >
+        <header className={`${keyboardOpen ? "pb-3" : "pb-3 sm:pb-5"}`}>
           <BrandMark />
-          <p className="self-end pt-1 text-[12px] uppercase tracking-[0.18em] text-black/34 sm:self-auto sm:text-sm sm:normal-case sm:tracking-normal">
-            Esperimento 01
-          </p>
         </header>
 
         <section
@@ -99,14 +92,14 @@ export function InputExperience() {
           </div>
 
           <div className="flex min-h-0 w-full items-stretch lg:h-full lg:items-center lg:justify-end">
-            <div className="surface-panel flex min-h-[min(58svh,34rem)] w-full flex-1 flex-col rounded-[30px] p-4 sm:p-5 lg:h-full lg:max-w-[38rem] lg:min-h-[min(74svh,48rem)] lg:flex-none lg:rounded-[34px] lg:p-6">
+            <div className="surface-panel flex min-h-[min(52svh,31rem)] w-full flex-1 flex-col rounded-[30px] p-4 sm:p-5 lg:h-full lg:max-w-[38rem] lg:min-h-[min(74svh,48rem)] lg:flex-none lg:rounded-[34px] lg:p-6">
               <form className="flex flex-1 flex-col lg:h-full" onSubmit={handleSubmit}>
-                <div className="flex min-h-0 flex-1 flex-col gap-4">
+                <div className="flex min-h-0 flex-1 flex-col gap-3.5 sm:gap-4">
                   <div className="flex items-center justify-between gap-4">
-                    <label htmlFor="plan" className="text-[21px] font-medium text-text sm:text-[19px]">
+                    <label htmlFor="plan" className="text-[18px] font-medium text-text sm:text-[19px]">
                       Il tuo piano
                     </label>
-                    <span className="text-[14px] uppercase tracking-[0.18em] text-black/30 sm:text-[13px]">
+                    <span className="text-[12px] uppercase tracking-[0.18em] text-black/30 sm:text-[13px]">
                       {trimmed.length}/{MAX_PLAN_LENGTH}
                     </span>
                   </div>
@@ -121,8 +114,8 @@ export function InputExperience() {
                     placeholder={SAMPLE_INPUTS[placeholderIndex]}
                     className={`w-full resize-none rounded-[28px] border hairline bg-[#FBFAF7] px-5 tracking-[-0.015em] text-text outline-none transition placeholder:text-black/28 focus:border-[#D8D1C6] focus:bg-white ${
                       keyboardOpen
-                        ? "min-h-[180px] py-5 text-[24px] leading-9"
-                        : "min-h-[250px] py-6 text-[26px] leading-10 sm:min-h-[220px] sm:py-5 sm:text-[21px] sm:leading-8"
+                        ? "min-h-[128px] py-4 text-[18px] leading-7"
+                        : "min-h-[196px] py-5 text-[19px] leading-8 sm:min-h-[220px] sm:py-5 sm:text-[21px] sm:leading-8"
                     }`}
                   />
 
@@ -130,7 +123,7 @@ export function InputExperience() {
                     <button
                       type="button"
                       onClick={handleExample}
-                      className="w-full rounded-[22px] border hairline bg-[#FBFAF7] px-4 py-4 text-left text-[20px] text-black/58 transition hover:bg-white hover:text-text sm:text-[18px]"
+                      className="w-full rounded-[22px] border hairline bg-[#FBFAF7] px-4 py-3.5 text-left text-[16px] text-black/58 transition hover:bg-white hover:text-text sm:text-[18px]"
                     >
                       Prova un esempio
                     </button>
@@ -140,21 +133,21 @@ export function InputExperience() {
                 <div
                   className={`space-y-3 ${
                     keyboardOpen
-                      ? "sticky bottom-0 -mx-4 mt-4 border-t hairline bg-white/96 px-4 pb-[calc(env(safe-area-inset-bottom)+0.35rem)] pt-3 sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-4"
+                      ? "mt-3 border-t hairline pt-3 sm:mt-4 sm:border-0 sm:pt-0"
                       : "mt-4"
                   }`}
                 >
                   <div className="flex items-center justify-between gap-3">
                     {isTooShort ? (
-                      <p className="text-[17px] text-[#AE5A39] sm:text-[16px]">Serve un po&apos; piu contesto.</p>
+                      <p className="text-[14px] text-[#AE5A39] sm:text-[16px]">Serve un po&apos; piu contesto.</p>
                     ) : (
-                      <p className="text-[17px] text-black/38 sm:text-[16px]">20-280 caratteri</p>
+                      <p className="text-[14px] text-black/38 sm:text-[16px]">20-280 caratteri</p>
                     )}
 
                     <button
                       type="button"
                       onClick={handleExample}
-                      className={`text-[17px] font-medium text-black/56 transition hover:text-text sm:text-[16px] ${
+                      className={`text-[14px] font-medium text-black/56 transition hover:text-text sm:text-[16px] ${
                         keyboardOpen ? "sm:inline-flex" : "hidden"
                       }`}
                     >
@@ -165,7 +158,7 @@ export function InputExperience() {
                   <button
                     type="submit"
                     disabled={!isValid || isSubmitting}
-                    className="w-full rounded-full bg-text px-5 py-4 text-[20px] font-medium text-white transition hover:bg-[#262626] disabled:cursor-not-allowed disabled:bg-[#A6A199] sm:text-[18px]"
+                    className="w-full rounded-full bg-text px-5 py-3.5 text-[16px] font-medium text-white transition hover:bg-[#262626] disabled:cursor-not-allowed disabled:bg-[#A6A199] sm:py-4 sm:text-[18px]"
                   >
                     {isSubmitting ? "Un attimo..." : "Valuta il mio piano"}
                   </button>
