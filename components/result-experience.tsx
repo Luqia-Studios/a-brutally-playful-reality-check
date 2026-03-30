@@ -184,7 +184,8 @@ export function ResultExperience() {
     ];
   }, [result]);
 
-  const evaluationText = result ? result.verdict : "";
+  const evaluationLead = result ? result.verdict : "";
+  const evaluationText = result ? result.sintesi : "";
 
   function resetShareState() {
     if (shareResetRef.current) {
@@ -253,6 +254,9 @@ export function ResultExperience() {
               </div>
 
               <div className="rounded-[22px] border border-[#F39241] bg-[#090909] p-3.5 shadow-[0_0_0_1px_rgba(243,146,65,0.12),0_0_24px_rgba(243,146,65,0.06)]">
+                <p className="mb-2 text-[10px] uppercase tracking-[0.18em] text-[#F5C393] sm:text-[11px]">
+                  {evaluationLead}
+                </p>
                 <p className="text-[17px] italic leading-[1.32] tracking-[-0.02em] text-[#E8DED4] sm:text-[21px]">
                   {evaluationText}
                 </p>

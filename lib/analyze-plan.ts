@@ -250,7 +250,23 @@ const CONTEXT_PATTERNS: Record<ContextKey, string[]> = {
   love: ["ex", "le scrivo", "gli scrivo", "le riscrivo", "gli riscrivo", "appuntamento", "relazione"],
   career: ["lavoro", "ufficio", "carriera", "mi licenzio", "freelance", "colloquio"],
   business: ["bar", "studio", "agenzia", "negozio", "startup", "attivita", "azienda", "clienti"],
-  travel: ["portogallo", "van", "parto", "viaggio", "mondo", "trasferisco", "volo"],
+  travel: [
+    "portogallo",
+    "berlino",
+    "thailandia",
+    "spagna",
+    "lisbona",
+    "londra",
+    "all'estero",
+    "estero",
+    "master",
+    "van",
+    "parto",
+    "viaggio",
+    "mondo",
+    "trasferisco",
+    "volo"
+  ],
   money: ["soldi", "budget", "prestito", "debito", "capitale", "investo", "rata"],
   purchase: ["compro", "moto", "macchina", "auto", "casa", "van", "acquisto"],
   life: ["reset", "cambio vita", "sparisco", "ricomincio", "nuova vita", "mollo tutto"]
@@ -700,6 +716,14 @@ function detectFlags(text: string): PlanFlags {
   const writeToEx = hasAny(text, ["le riscrivo", "gli riscrivo", "le scrivo", "gli scrivo", " ex"]);
   const moveAbroad = hasAny(text, [
     "portogallo",
+    "berlino",
+    "germania",
+    "thailandia",
+    "spagna",
+    "lisbona",
+    "londra",
+    "madrid",
+    "bali",
     "giro del mondo",
     "parto",
     "trasferisco",
@@ -766,7 +790,34 @@ function detectDriver(text: string, flags: PlanFlags) {
     fantasia_di_controllo: countHits(text, DRIVER_PATTERNS.fantasia_di_controllo)
   };
 
-  return (Object.entries(scores).sort((left, right) => right[1] - left[1])[0]?.[0] as DriverKey) ?? "impulsivita";
+  const ordered = Object.entries(scores).sort((left, right) => right[1] - left[1]) as Array<[DriverKey, number]>;
+  const [topKey, topScore] = ordered[0] ?? ["impulsivita", 0];
+
+  if (topScore > 0) {
+    return topKey;
+  }
+
+  if (flags.writeToEx) {
+    return "nostalgia";
+  }
+
+  if (flags.moveAbroad || flags.dramaticReset) {
+    return "fuga";
+  }
+
+  if (flags.quitJob) {
+    return "saturazione";
+  }
+
+  if (flags.openBusiness) {
+    return "romanticismo";
+  }
+
+  if (flags.buyingThing) {
+    return "impulsivita";
+  }
+
+  return "fantasia_di_controllo";
 }
 
 function detectContext(text: string, flags: PlanFlags) {
@@ -783,7 +834,10 @@ function detectContext(text: string, flags: PlanFlags) {
   if (flags.writeToEx) scores.love += 5;
   if (flags.quitJob) scores.career += 4;
   if (flags.openBusiness) scores.business += 4;
-  if (flags.moveAbroad) scores.travel += 5;
+  if (flags.moveAbroad) scores.travel += 7;
+  if (flags.moveAbroad && (flags.noLanguage || flags.noDocuments || flags.noWork || flags.noMoney || flags.noPlan)) {
+    scores.travel += 2;
+  }
   if (flags.buyingThing) scores.purchase += 4;
   if (flags.noMoney) scores.money += 3;
   if (flags.dramaticReset) scores.life += 4;
