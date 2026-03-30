@@ -66,15 +66,15 @@ function IndicatorTile({ label, value }: { label: string; value: number }) {
   const accent = indicatorAccent(value);
 
   return (
-    <div className="rounded-[18px] border border-white/10 bg-white/[0.03] p-3.5 backdrop-blur-sm">
-      <p className="text-[11px] uppercase tracking-[0.18em] text-[#A59689]">{label}</p>
+    <div className="rounded-[18px] border border-white/10 bg-[#0D0D0D] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
+      <p className="text-[10px] uppercase tracking-[0.18em] text-[#B2A396]">{label}</p>
       <div className="mt-2 flex items-end justify-between gap-3">
-        <span className="text-[28px] font-semibold leading-none tracking-[-0.04em] text-[#F4EDE5]">
+        <span className="text-[25px] font-semibold leading-none tracking-[-0.04em] text-[#F4EDE5] sm:text-[28px]">
           {value}
         </span>
-        <span className="text-[12px] uppercase tracking-[0.18em] text-[#8E847C]">/100</span>
+        <span className="text-[11px] uppercase tracking-[0.18em] text-[#998D83]">/100</span>
       </div>
-      <div className="mt-3 h-[3px] overflow-hidden rounded-full bg-white/10">
+      <div className="mt-3 h-[3px] overflow-hidden rounded-full bg-white/8">
         <div
           className="h-full rounded-full transition-[width] duration-700 ease-out"
           style={{ width: `${value}%`, backgroundColor: accent }}
@@ -185,7 +185,7 @@ export function ResultExperience() {
     ];
   }, [result]);
 
-  const evaluationText = result ? `${result.verdict}. ${result.fraseFinale}` : "";
+  const evaluationText = result ? result.verdict : "";
 
   function resetShareState() {
     if (shareResetRef.current) {
@@ -246,52 +246,52 @@ export function ResultExperience() {
 
   return (
     <main className="viewport-shell relative overflow-x-hidden overflow-y-auto bg-black text-[#F4EDE5]">
-      <SpaceBackdrop />
+      <SpaceBackdrop dimPlanet />
 
-      <div className="relative z-10 mx-auto flex min-h-full w-full max-w-[30rem] flex-col px-5 py-5 sm:max-w-[34rem] sm:px-8 sm:py-8 lg:max-w-[74rem] lg:px-10">
+      <div className="relative z-10 mx-auto flex min-h-full w-full max-w-[30rem] flex-col px-3 py-3 sm:max-w-[34rem] sm:px-8 sm:py-8 lg:max-w-[74rem] lg:px-10">
         <section className="mx-auto flex w-full max-w-[23rem] flex-1 items-stretch text-center sm:max-w-[26rem] lg:max-w-[66rem] lg:text-left">
           <div
-            className="animate-reveal flex h-full w-full flex-col justify-between rounded-[28px] border border-white/10 bg-black/56 p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_0_36px_rgba(243,146,65,0.08)] backdrop-blur-sm sm:p-5 lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:gap-8"
+            className="animate-reveal flex h-full min-h-[calc(var(--app-height)-1.5rem)] max-h-[calc(var(--app-height)-1.5rem)] w-full flex-col justify-between overflow-hidden rounded-[28px] border border-white/8 bg-[#050505] p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_0_34px_rgba(243,146,65,0.08)] sm:p-5 lg:min-h-0 lg:max-h-none lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:gap-8"
             style={{ animationDelay: "140ms" }}
           >
-            <div className="flex flex-col justify-between gap-5 lg:gap-6">
-              <div className="space-y-3">
+            <div className="flex flex-col justify-between gap-3 lg:gap-6">
+              <div className="space-y-1.5">
                 <div className="flex items-end justify-center gap-2 lg:justify-start">
-                  <span className="space-home-playful text-[106px] leading-none text-[#F39241] sm:text-[118px]">
+                  <span className="space-home-playful text-[88px] leading-none text-[#F39241] sm:text-[106px]">
                     {animatedScore}
                   </span>
-                  <span className="pb-4 text-[17px] uppercase tracking-[0.18em] text-[#C8B9AA]">/100</span>
+                  <span className="pb-3 text-[14px] uppercase tracking-[0.18em] text-[#C8B9AA]">/100</span>
                 </div>
                 <p className="text-[11px] uppercase tracking-[0.24em] text-[#A59689]">Indice di delirio</p>
-                <p className="text-[12px] uppercase tracking-[0.2em] text-[#F5C393]">{result.categoria}</p>
+                <p className="text-[11px] uppercase tracking-[0.18em] text-[#F5C393]">{result.categoria}</p>
               </div>
 
-              <div className="rounded-[22px] border border-[#F39241] bg-black/72 p-4 shadow-[0_0_0_1px_rgba(243,146,65,0.12),0_0_30px_rgba(243,146,65,0.08)]">
-                <p className="text-[22px] italic leading-[1.4] tracking-[-0.02em] text-[#E8DED4] sm:text-[25px]">
+              <div className="rounded-[22px] border border-[#F39241] bg-[#090909] p-3.5 shadow-[0_0_0_1px_rgba(243,146,65,0.12),0_0_24px_rgba(243,146,65,0.06)]">
+                <p className="text-[17px] italic leading-[1.32] tracking-[-0.02em] text-[#E8DED4] sm:text-[21px]">
                   {evaluationText}
                 </p>
               </div>
             </div>
 
-            <div className="mt-5 flex flex-col justify-between gap-4 lg:mt-0">
-              <div className="grid gap-3 sm:grid-cols-2">
+            <div className="mt-3 flex flex-col justify-between gap-2.5 lg:mt-0">
+              <div className="grid grid-cols-2 gap-2.5">
                 {indicators.map((indicator) => (
                   <IndicatorTile key={indicator.label} label={indicator.label} value={indicator.value} />
                 ))}
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   type="button"
                   onClick={handleShare}
-                  className="rounded-full border border-[#F39241] bg-[#F39241] px-5 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-black shadow-[0_10px_28px_rgba(243,146,65,0.28)] transition duration-300 hover:bg-[#FFB066]"
+                  className="rounded-full border border-[#F39241] bg-[#F39241] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-black shadow-[0_10px_28px_rgba(243,146,65,0.28)] transition duration-300 hover:bg-[#FFB066]"
                 >
                   {shareState === "shared" ? "Risultato copiato" : "Condividi"}
                 </button>
                 <button
                   type="button"
                   onClick={handleRetry}
-                  className="rounded-full border border-white/14 bg-white/[0.03] px-5 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-[#F5EDE5] transition duration-300 hover:bg-white/[0.08]"
+                  className="rounded-full border border-white/14 bg-[#111111] px-4 py-3 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#F5EDE5] transition duration-300 hover:bg-[#171717]"
                 >
                   Un altro piano
                 </button>
@@ -300,7 +300,7 @@ export function ResultExperience() {
               <button
                 type="button"
                 onClick={handleCopyVerdict}
-                className="text-[12px] uppercase tracking-[0.18em] text-[#A59689] transition hover:text-[#F39241]"
+                className="text-[11px] uppercase tracking-[0.18em] text-[#A59689] transition hover:text-[#F39241]"
               >
                 {shareState === "copied" ? "Valutazione copiata" : "Copia la valutazione"}
               </button>
