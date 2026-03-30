@@ -177,10 +177,10 @@ export function ResultExperience() {
     }
 
     return [
-      { label: "Realismo", value: result.indicatori.realismo },
+      { label: "Dissociazione", value: result.indicatori.dissociazione },
       { label: "Impulsivita", value: result.indicatori.impulsivita },
-      { label: "Danno economico", value: result.indicatori.dannoEconomico },
-      { label: "Main character", value: result.indicatori.mainCharacterEnergy }
+      { label: "Danno pratico", value: result.indicatori.dannoPratico },
+      { label: "Poetico", value: result.indicatori.poetico }
     ];
   }, [result]);
 

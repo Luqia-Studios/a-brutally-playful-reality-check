@@ -13,23 +13,41 @@ export const SAMPLE_INPUTS = [
 
 export type AnalysisResult = {
   piano: string;
+  tema: string;
+  driver: string;
+  safetyMode: boolean;
+  blocked: boolean;
   score: number;
   categoria: string;
   verdict: string;
   sintesi: string;
+  cosaRegge: string;
+  cosaNonRegge: string;
+  puntoCieco: string;
   fraseFinale: string;
   tratti: string[];
   indicatori: {
-    realismo: number;
+    dissociazione: number;
     impulsivita: number;
-    dannoEconomico: number;
-    mainCharacterEnergy: number;
+    dannoPratico: number;
+    poetico: number;
   };
   shareText: string;
 };
 
 type SignalKey = "realismo" | "impulsivita" | "emotivo" | "economico" | "pratico" | "cinema";
 type ContextKey = "love" | "career" | "business" | "travel" | "money" | "purchase" | "life";
+type DriverKey =
+  | "fuga"
+  | "impulsivita"
+  | "nostalgia"
+  | "ego"
+  | "romanticismo"
+  | "saturazione"
+  | "rivalsa"
+  | "noia"
+  | "bisogno_di_reset"
+  | "fantasia_di_controllo";
 type BandKey = "grounded" | "plausible" | "unstable" | "delusional" | "iconic";
 type SpecialScenario =
   | "writeToEx"
@@ -44,6 +62,9 @@ type PlanFlags = {
   noPlan: boolean;
   noClients: boolean;
   noExperience: boolean;
+  noLanguage: boolean;
+  noDocuments: boolean;
+  noWork: boolean;
   writeToEx: boolean;
   moveAbroad: boolean;
   quitJob: boolean;
@@ -55,6 +76,9 @@ type PlanFlags = {
   hasSafetyNet: boolean;
   hasSupport: boolean;
   hasClients: boolean;
+  hasLanguage: boolean;
+  hasDocuments: boolean;
+  hasJob: boolean;
   immediate: boolean;
 };
 
@@ -259,6 +283,52 @@ const CATEGORY_LABELS = [
   { max: 80, label: "Delirante con metodo" },
   { max: 100, label: "Iconicamente delirante" }
 ];
+
+const SAFETY_PATTERNS = {
+  violence: ["uccido", "ammazzo", "picchio", "violenza", "aggressione", "farle male", "fargli male"],
+  abuse: ["costringo", "obbligo", "ricatto", "minaccio", "coercizione", "abusare"],
+  drugs: ["cocaina", "eroina", "mdma", "spaccio", "spacciare", "droga illegale", "ketamina"],
+  crime: ["rubare", "truffa", "truffare", "evasione", "documenti falsi", "reato", "scam"],
+  stalking: ["stalking", "la seguo", "lo seguo", "la controllo", "lo controllo", "controllo il suo telefono"],
+  selfHarm: ["suicidio", "uccidermi", "ammazzarmi", "mi faccio male", "mi taglio", "autolesionismo"],
+  nonConsensual: ["senza consenso", "non consensuale", "minorenne", "minori", "sfruttamento", "revenge porn"]
+} as const;
+
+const THEME_LABELS: Record<ContextKey, string> = {
+  love: "relazioni",
+  career: "lavoro",
+  business: "progetto creativo",
+  travel: "viaggio",
+  money: "soldi",
+  purchase: "acquisto",
+  life: "fuga / cambio vita"
+};
+
+const DRIVER_LABELS: Record<DriverKey, string> = {
+  fuga: "fuga",
+  impulsivita: "impulsivita",
+  nostalgia: "nostalgia",
+  ego: "ego",
+  romanticismo: "romanticismo",
+  saturazione: "saturazione",
+  rivalsa: "rivalsa",
+  noia: "noia",
+  bisogno_di_reset: "bisogno di reset",
+  fantasia_di_controllo: "fantasia di controllo"
+};
+
+const DRIVER_PATTERNS: Record<DriverKey, string[]> = {
+  fuga: ["scappo", "fuga", "sparisco", "mollo tutto", "parto", "cambio vita"],
+  impulsivita: ["subito", "domani", "adesso", "ora", "senza pensarci", "lo faccio e basta", "poi si vede"],
+  nostalgia: ["ex", "mi manca", "nostalgia", "come se niente fosse", "le riscrivo", "gli riscrivo"],
+  ego: ["dimostrare", "gliela faccio vedere", "far vedere", "li stupisco"],
+  romanticismo: ["seguo l'istinto", "destino", "sogno", "cuore", "visione", "magia"],
+  saturazione: ["non ne posso piu", "saturo", "burnout", "esausto", "mi sono rotto"],
+  rivalsa: ["vendetta", "rivalsa", "mi riprendo", "mi riprendo tutto"],
+  noia: ["mi annoio", "per noia", "tanto per", "voglio movimento"],
+  bisogno_di_reset: ["ricomincio da zero", "nuova vita", "reset", "riparto"],
+  fantasia_di_controllo: ["controllo", "tengo tutto sotto controllo", "gestisco tutto io"]
+};
 
 const VERDICT_LIBRARY: VerdictLibrary = {
   grounded: {
@@ -524,11 +594,11 @@ function normalizeText(value: string) {
     .replace(/[’]/g, "'");
 }
 
-function countHits(text: string, patterns: string[]) {
+function countHits(text: string, patterns: readonly string[]) {
   return patterns.reduce((total, pattern) => total + Number(text.includes(pattern)), 0);
 }
 
-function hasAny(text: string, patterns: string[]) {
+function hasAny(text: string, patterns: readonly string[]) {
   return patterns.some((pattern) => text.includes(pattern));
 }
 
@@ -574,13 +644,74 @@ function leadingSignal(values: Array<{ key: SignalKey; value: number }>) {
   return values.slice().sort((left, right) => right.value - left.value)[0]?.key ?? "pratico";
 }
 
+function detectSafety(text: string) {
+  const violent = hasAny(text, SAFETY_PATTERNS.violence);
+  const abusive = hasAny(text, SAFETY_PATTERNS.abuse);
+  const drugs = hasAny(text, SAFETY_PATTERNS.drugs);
+  const crime = hasAny(text, SAFETY_PATTERNS.crime);
+  const stalking = hasAny(text, SAFETY_PATTERNS.stalking);
+  const selfHarm = hasAny(text, SAFETY_PATTERNS.selfHarm);
+  const nonConsensual = hasAny(text, SAFETY_PATTERNS.nonConsensual);
+
+  const safetyMode = violent || abusive || drugs || crime || stalking || selfHarm || nonConsensual;
+  const blocked = violent || abusive || stalking || selfHarm || nonConsensual;
+  const severity = clamp(
+    84 +
+      Number(violent) * 7 +
+      Number(abusive) * 7 +
+      Number(stalking) * 8 +
+      Number(selfHarm) * 10 +
+      Number(nonConsensual) * 9 +
+      Number(drugs || crime) * 4,
+    85,
+    100
+  );
+
+  return {
+    safetyMode,
+    blocked,
+    reason: selfHarm
+      ? "selfHarm"
+      : nonConsensual
+        ? "nonConsensual"
+        : violent
+          ? "violence"
+          : abusive
+            ? "abuse"
+            : stalking
+              ? "stalking"
+              : drugs
+                ? "drugs"
+                : crime
+                  ? "crime"
+                  : null,
+    severity
+  };
+}
+
 function detectFlags(text: string): PlanFlags {
   const noMoney = hasAny(text, ["non ho soldi", "senza soldi", "senza budget", "soldi non ne ho"]);
   const noPlan = hasAny(text, ["senza piano", "nessun piano", "poi si vede", "senza sapere come"]);
   const noClients = hasAny(text, ["senza clienti", "nessun cliente", "zero clienti"]);
   const noExperience = hasAny(text, EXPERIENCE_GAP_WORDS);
+  const noLanguage = hasAny(text, ["senza sapere la lingua", "senza lingua", "non parlo inglese", "senza parlare la lingua"]);
+  const noDocuments = hasAny(text, ["senza documenti", "senza visto", "senza permesso", "senza contratto"]);
+  const noWork = hasAny(text, ["senza lavoro", "nessun lavoro", "senza entrate", "senza stipendio"]);
   const writeToEx = hasAny(text, ["le riscrivo", "gli riscrivo", "le scrivo", "gli scrivo", " ex"]);
-  const moveAbroad = hasAny(text, ["portogallo", "giro del mondo", "parto", "trasferisco", "cambio paese"]);
+  const moveAbroad = hasAny(text, [
+    "portogallo",
+    "giro del mondo",
+    "parto",
+    "trasferisco",
+    "cambio paese",
+    "all'estero",
+    "estero",
+    "berlino",
+    "thailandia",
+    "spagna",
+    "lisbona",
+    "londra"
+  ]);
   const quitJob = hasAny(text, ["mi licenzio", "lascio il lavoro", "mollo il lavoro", "mollo tutto"]);
   const buyingThing = hasAny(text, ["compro", "mi compro", "moto", "macchina", "auto", "van", "casa"]);
   const openBusiness = hasAny(text, ["apro", "bar", "studio", "agenzia", "locale", "attivita", "azienda"]);
@@ -590,6 +721,9 @@ function detectFlags(text: string): PlanFlags {
   const hasSafetyNet = hasAny(text, SAFETY_WORDS);
   const hasSupport = hasAny(text, ["partner", "socio", "rete", "contatti", "amico che", "insieme a"]);
   const hasClients = hasAny(text, CLIENT_POSITIVE_WORDS) && !noClients;
+  const hasLanguage = hasAny(text, ["parlo inglese", "parlo la lingua", "inglese", "spagnolo", "tedesco", "portoghese"]);
+  const hasDocuments = hasAny(text, ["visto", "documenti", "permesso", "ammissione", "sono ammesso", "gia ammesso"]);
+  const hasJob = hasAny(text, ["contratto", "offerta", "lavoro gia", "gia assunto", "clienti gia", "preordini"]);
   const immediate = hasAny(text, ["subito", "domani", "adesso", "ora", "tra una settimana"]);
 
   return {
@@ -597,6 +731,9 @@ function detectFlags(text: string): PlanFlags {
     noPlan,
     noClients,
     noExperience,
+    noLanguage,
+    noDocuments,
+    noWork,
     writeToEx,
     moveAbroad,
     quitJob,
@@ -608,8 +745,28 @@ function detectFlags(text: string): PlanFlags {
     hasSafetyNet,
     hasSupport,
     hasClients,
+    hasLanguage,
+    hasDocuments,
+    hasJob,
     immediate
   };
+}
+
+function detectDriver(text: string, flags: PlanFlags) {
+  const scores: Record<DriverKey, number> = {
+    fuga: countHits(text, DRIVER_PATTERNS.fuga) + Number(flags.dramaticReset || flags.moveAbroad) * 2,
+    impulsivita: countHits(text, DRIVER_PATTERNS.impulsivita) + Number(flags.immediate) * 2,
+    nostalgia: countHits(text, DRIVER_PATTERNS.nostalgia) + Number(flags.writeToEx) * 3,
+    ego: countHits(text, DRIVER_PATTERNS.ego),
+    romanticismo: countHits(text, DRIVER_PATTERNS.romanticismo) + countHits(text, CINEMATIC_WORDS),
+    saturazione: countHits(text, DRIVER_PATTERNS.saturazione) + Number(flags.quitJob),
+    rivalsa: countHits(text, DRIVER_PATTERNS.rivalsa),
+    noia: countHits(text, DRIVER_PATTERNS.noia),
+    bisogno_di_reset: countHits(text, DRIVER_PATTERNS.bisogno_di_reset) + Number(flags.dramaticReset) * 2,
+    fantasia_di_controllo: countHits(text, DRIVER_PATTERNS.fantasia_di_controllo)
+  };
+
+  return (Object.entries(scores).sort((left, right) => right[1] - left[1])[0]?.[0] as DriverKey) ?? "impulsivita";
 }
 
 function detectContext(text: string, flags: PlanFlags) {
@@ -876,12 +1033,194 @@ function buildTraits({
   return traits.slice(0, 3);
 }
 
+function buildCosaRegge(context: ContextKey, flags: PlanFlags) {
+  if (flags.hasJob || flags.hasDocuments) {
+    return "Regge perche esiste almeno una base formale da cui partire.";
+  }
+
+  if (flags.hasClients) {
+    return "Regge perche una domanda reale si intravede gia.";
+  }
+
+  if (flags.hasBudget) {
+    return "Regge perche i conti non sono del tutto fuori dalla stanza.";
+  }
+
+  if (flags.hasTimeline || flags.hasSafetyNet) {
+    return "Regge perche qualche passaggio concreto c'e.";
+  }
+
+  if (flags.hasSupport || flags.hasLanguage) {
+    return "Regge perche non stai partendo completamente senza appoggi.";
+  }
+
+  if (context === "love") {
+    return "Regge perche il desiderio di muoverti sembra autentico.";
+  }
+
+  return "Regge perche la spinta sembra vera, non inventata.";
+}
+
+function buildCosaNonRegge(context: ContextKey, flags: PlanFlags) {
+  const missingAbroadBase = [
+    flags.noMoney,
+    flags.noPlan,
+    flags.noLanguage,
+    flags.noDocuments,
+    flags.noWork,
+    !flags.hasSupport
+  ].filter(Boolean).length;
+
+  if (flags.moveAbroad && missingAbroadBase >= 2) {
+    return "Non regge perche il salto all'estero e molto piu grande delle basi che lo sostengono.";
+  }
+
+  if (flags.openBusiness && (flags.noClients || !flags.hasBudget || flags.noExperience)) {
+    return "Non regge perche progetto, clienti e copertura stanno viaggiando a velocita diverse.";
+  }
+
+  if (flags.writeToEx) {
+    return "Non regge perche il contesto attuale conta piu del ricordo che hai in testa.";
+  }
+
+  if (flags.buyingThing && flags.noMoney) {
+    return "Non regge perche la spesa arriva prima della copertura.";
+  }
+
+  if (flags.noPlan && flags.noMoney) {
+    return "Non regge perche mancano insieme struttura e margine.";
+  }
+
+  if (flags.noPlan) {
+    return "Non regge perche i passaggi intermedi restano quasi tutti impliciti.";
+  }
+
+  if (flags.noMoney) {
+    return "Non regge perche la parte economica parte gia in affanno.";
+  }
+
+  if (context === "travel") {
+    return "Non regge perche l'orizzonte e piu preparato della logistica.";
+  }
+
+  return "Non regge perche la sostenibilita resta indietro rispetto al fascino.";
+}
+
+function buildBlindSpot(context: ContextKey, driver: DriverKey, dominantSignal: SignalKey, flags: PlanFlags) {
+  const missingAbroadBase = [
+    flags.noMoney,
+    flags.noPlan,
+    flags.noLanguage,
+    flags.noDocuments,
+    flags.noWork,
+    !flags.hasSupport
+  ].filter(Boolean).length;
+
+  if (flags.writeToEx) {
+    return "Stai leggendo nostalgia come se fosse contesto favorevole.";
+  }
+
+  if (flags.moveAbroad && missingAbroadBase >= 2) {
+    return "Stai trattando il trasferimento come cambio scena, non come infrastruttura.";
+  }
+
+  if (flags.openBusiness && (flags.noClients || !flags.hasBudget)) {
+    return "Stai scambiando identita di progetto per prova di domanda.";
+  }
+
+  if (flags.buyingThing && flags.noMoney) {
+    return "Stai chiamando inevitabile una spesa che resta scoperta.";
+  }
+
+  if (driver === "fuga") {
+    return "Stai usando la distanza come se sostituisse la struttura.";
+  }
+
+  if (driver === "romanticismo") {
+    return "Stai confondendo fascino e fattibilita.";
+  }
+
+  if (dominantSignal === "impulsivita") {
+    return "Stai usando urgenza al posto dei passaggi.";
+  }
+
+  if (dominantSignal === "pratico" || dominantSignal === "economico") {
+    return "Stai sottopesando il costo concreto del gesto.";
+  }
+
+  if (context === "life") {
+    return "La narrativa del reset e piu pronta della manutenzione pratica.";
+  }
+
+  return "La narrativa e piu pronta dell'operativita.";
+}
+
 export function analyzePlan(input: string): AnalysisResult {
   const piano = input.trim();
   const normalized = normalizeText(piano);
   const seed = hashText(normalized);
+  const safety = detectSafety(normalized);
+
+  if (safety.safetyMode) {
+    const poetico = clamp(10 + (seed % 18), 8, 28);
+    const impulsivita = clamp(58 + (seed % 24), 58, 92);
+    const dissociazione = clamp(safety.severity - 2, 85, 98);
+    const dannoPratico = clamp(safety.severity + 5, 90, 100);
+    const score = clamp(
+      dissociazione * 0.3 + impulsivita * 0.25 + dannoPratico * 0.25 + poetico * 0.2,
+      85,
+      100
+    );
+    const verdict = pickFrom(
+      [
+        "Questo non rientra nel delirio poetico.",
+        "Qui il problema non e la visione.",
+        "Questo esce dal gioco."
+      ],
+      seed
+    );
+    const tail =
+      safety.reason === "selfHarm"
+        ? "Qui serve fermarsi, non romanticizzare."
+        : safety.reason === "nonConsensual"
+          ? "Qui non c'e niente di giocoso."
+          : "Rientra nel danno reale.";
+
+    return {
+      piano,
+      tema: "illegale / dannoso",
+      driver: DRIVER_LABELS.fantasia_di_controllo,
+      safetyMode: true,
+      blocked: safety.blocked,
+      score,
+      categoria: safety.blocked ? "Danno reale" : "Alta allerta",
+      verdict,
+      sintesi: `${verdict} ${tail}`,
+      cosaRegge: "Qui non c'e nulla da glamourizzare.",
+      cosaNonRegge: "Non regge perche il rischio concreto viene prima di qualsiasi narrativa.",
+      puntoCieco: "Stai trattando un danno reale come se fosse ancora un piano da raccontare.",
+      fraseFinale: pickFrom(
+        [
+          "Qui non serve fascino. Serve fermarsi.",
+          "Non c'e niente di cinematografico in un piano che passa dal danno.",
+          "Il rischio concreto cancella ogni glamour."
+        ],
+        seed
+      ),
+      tratti: ["pericoloso", "lesivo", "grave"],
+      indicatori: {
+        dissociazione,
+        impulsivita,
+        dannoPratico,
+        poetico
+      },
+      shareText: `Indice di delirio: ${score}/100 - ${verdict} ${tail}`
+    };
+  }
+
   const flags = detectFlags(normalized);
   const context = detectContext(normalized, flags);
+  const driver = detectDriver(normalized, flags);
   const scenario = detectSpecialScenario(flags);
 
   const wordCount = normalized.split(/\s+/).filter(Boolean).length;
@@ -897,6 +1236,17 @@ export function analyzePlan(input: string): AnalysisResult {
   const financialHits = countHits(normalized, FINANCIAL_WORDS);
   const practicalHits = countHits(normalized, PRACTICAL_RISK_WORDS);
   const cinematicHits = countHits(normalized, CINEMATIC_WORDS);
+  const missingAbroadBase = [
+    flags.noMoney,
+    flags.noPlan,
+    flags.noLanguage,
+    flags.noDocuments,
+    flags.noWork,
+    !flags.hasSupport
+  ].filter(Boolean).length;
+  const abroadPenalty = flags.moveAbroad && missingAbroadBase >= 2 ? 18 : 0;
+  const businessPenalty = flags.openBusiness && (flags.noClients || !flags.hasBudget || flags.noExperience) ? 14 : 0;
+  const exPenalty = flags.writeToEx && hasAny(normalized, ["dopo sei mesi", "dopo 6 mesi", "dopo otto mesi", "dopo 8 mesi"]) ? 12 : 0;
 
   const planningStrength = clamp(
     18 +
@@ -907,10 +1257,16 @@ export function analyzePlan(input: string): AnalysisResult {
       (flags.hasSafetyNet ? 10 : 0) +
       (flags.hasSupport ? 7 : 0) +
       (flags.hasClients ? 8 : 0) +
+      (flags.hasLanguage ? 6 : 0) +
+      (flags.hasDocuments ? 7 : 0) +
+      (flags.hasJob ? 8 : 0) +
       (wordCount >= 18 ? 5 : 0) +
       (wordCount >= 28 ? 4 : 0) -
       (flags.noPlan ? 22 : 0) -
-      (flags.noExperience ? 12 : 0),
+      (flags.noExperience ? 12 : 0) -
+      (flags.noLanguage ? 8 : 0) -
+      (flags.noDocuments ? 8 : 0) -
+      (flags.noWork ? 7 : 0),
     4,
     100
   );
@@ -924,7 +1280,13 @@ export function analyzePlan(input: string): AnalysisResult {
       (flags.noMoney ? 6 : 0) -
       (flags.noPlan ? 10 : 0) -
       (flags.noExperience ? 8 : 0) -
-      (flags.writeToEx ? 10 : 0) +
+      (flags.writeToEx ? 10 : 0) -
+      (flags.noLanguage ? 7 : 0) -
+      (flags.noDocuments ? 7 : 0) -
+      (flags.noWork ? 6 : 0) -
+      abroadPenalty -
+      businessPenalty -
+      exPenalty +
       (multiStepCount > 0 ? 3 : 0),
     5,
     96
@@ -961,7 +1323,12 @@ export function analyzePlan(input: string): AnalysisResult {
       (flags.noClients ? 18 : 0) +
       (flags.noExperience ? 14 : 0) +
       (flags.quitJob && !flags.hasSafetyNet ? 12 : 0) +
-      (flags.moveAbroad ? 8 : 0) -
+      (flags.moveAbroad ? 8 : 0) +
+      (flags.noLanguage ? 9 : 0) +
+      (flags.noDocuments ? 10 : 0) +
+      (flags.noWork ? 8 : 0) +
+      abroadPenalty +
+      businessPenalty -
       planningStrength * 0.28,
     6,
     98
@@ -974,6 +1341,7 @@ export function analyzePlan(input: string): AnalysisResult {
       (flags.openBusiness ? 12 : 0) +
       (flags.moveAbroad ? 8 : 0) +
       (flags.noMoney ? 26 : 0) +
+      (flags.noWork ? 8 : 0) +
       (flags.noClients ? 6 : 0) -
       (flags.hasBudget ? 12 : 0) -
       planningHits * 2,
@@ -988,30 +1356,38 @@ export function analyzePlan(input: string): AnalysisResult {
       esposizioneEmotiva * 0.14 +
       (flags.moveAbroad ? 10 : 0) +
       (flags.quitJob ? 8 : 0) +
-      (flags.dramaticReset ? 12 : 0),
+      (flags.dramaticReset ? 12 : 0) +
+      (driver === "romanticismo" ? 8 : 0) +
+      (driver === "fuga" ? 6 : 0),
     8,
     100
   );
 
+  const dissociazione = clamp(
+    (100 - realismo) +
+      abroadPenalty * 0.55 +
+      businessPenalty * 0.5 +
+      exPenalty * 0.6 +
+      (flags.noPlan ? 8 : 0) +
+      (flags.noMoney ? 6 : 0),
+    1,
+    100
+  );
+  const dannoPratico = clamp(rischioPratico * 0.62 + dannoEconomico * 0.38, 1, 100);
+  const poetico = clamp(mainCharacterEnergy * 0.72 + esposizioneEmotiva * 0.28, 1, 100);
   const score = clamp(
-    (100 - realismo) * 0.29 +
-      impulsivita * 0.19 +
-      esposizioneEmotiva * 0.12 +
-      dannoEconomico * 0.16 +
-      rischioPratico * 0.17 +
-      Math.max(0, mainCharacterEnergy - 55) * 0.08 -
-      planningStrength * 0.04,
-    4,
-    99
+    dissociazione * 0.3 + impulsivita * 0.25 + dannoPratico * 0.25 + poetico * 0.2,
+    1,
+    100
   );
 
   const signals = [
-    { key: "realismo" as SignalKey, value: 100 - realismo },
+    { key: "realismo" as SignalKey, value: dissociazione },
     { key: "impulsivita" as SignalKey, value: impulsivita },
     { key: "emotivo" as SignalKey, value: esposizioneEmotiva },
-    { key: "economico" as SignalKey, value: dannoEconomico },
+    { key: "economico" as SignalKey, value: dannoPratico },
     { key: "pratico" as SignalKey, value: rischioPratico },
-    { key: "cinema" as SignalKey, value: mainCharacterEnergy }
+    { key: "cinema" as SignalKey, value: poetico }
   ];
 
   const orderedSignals = signals
@@ -1053,17 +1429,24 @@ export function analyzePlan(input: string): AnalysisResult {
 
   return {
     piano,
+    tema: THEME_LABELS[context],
+    driver: DRIVER_LABELS[driver],
+    safetyMode: false,
+    blocked: false,
     score,
     categoria,
     verdict,
     sintesi,
+    cosaRegge: buildCosaRegge(context, flags),
+    cosaNonRegge: buildCosaNonRegge(context, flags),
+    puntoCieco: buildBlindSpot(context, driver, dominantSignal, flags),
     fraseFinale,
     tratti,
     indicatori: {
-      realismo,
+      dissociazione,
       impulsivita,
-      dannoEconomico,
-      mainCharacterEnergy
+      dannoPratico,
+      poetico
     },
     shareText
   };
