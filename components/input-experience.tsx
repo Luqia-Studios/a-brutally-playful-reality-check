@@ -2,6 +2,8 @@
 
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { SpaceBackdrop } from "@/components/space-backdrop";
+import { SpaceWordmark } from "@/components/space-wordmark";
 import { useViewportMetrics } from "@/lib/use-viewport-metrics";
 import {
   MAX_PLAN_LENGTH,
@@ -9,27 +11,6 @@ import {
   PLAN_SESSION_KEY,
   SAMPLE_INPUTS
 } from "@/lib/analyze-plan";
-
-const HOME_STARS = [
-  { top: "6%", left: "8%", size: 2, delay: "0.2s", duration: "3.4s" },
-  { top: "8%", left: "21%", size: 1.8, delay: "1.3s", duration: "3.8s" },
-  { top: "10%", left: "36%", size: 2.4, delay: "0.8s", duration: "4.2s" },
-  { top: "12%", left: "62%", size: 1.8, delay: "1.1s", duration: "4s" },
-  { top: "7%", left: "78%", size: 2.2, delay: "2.1s", duration: "3.6s" },
-  { top: "17%", left: "13%", size: 1.8, delay: "1.7s", duration: "3.5s" },
-  { top: "20%", left: "70%", size: 2.4, delay: "0.9s", duration: "4.1s" },
-  { top: "27%", left: "84%", size: 1.8, delay: "2.3s", duration: "3.9s" },
-  { top: "33%", left: "17%", size: 2.2, delay: "0.4s", duration: "4.3s" },
-  { top: "38%", left: "58%", size: 2, delay: "1.4s", duration: "3.4s" },
-  { top: "44%", left: "8%", size: 1.8, delay: "2.5s", duration: "4.2s" },
-  { top: "49%", left: "91%", size: 2.2, delay: "0.6s", duration: "3.7s" },
-  { top: "58%", left: "28%", size: 2.4, delay: "1.9s", duration: "4.1s" },
-  { top: "62%", left: "73%", size: 1.8, delay: "0.7s", duration: "3.8s" },
-  { top: "71%", left: "15%", size: 2.1, delay: "1.2s", duration: "4.3s" },
-  { top: "76%", left: "83%", size: 2.3, delay: "2.4s", duration: "3.6s" },
-  { top: "84%", left: "10%", size: 1.9, delay: "0.5s", duration: "4.4s" },
-  { top: "87%", left: "55%", size: 2.2, delay: "2s", duration: "3.5s" }
-] as const;
 
 export function InputExperience() {
   const router = useRouter();
@@ -83,27 +64,7 @@ export function InputExperience() {
 
   return (
     <main className="viewport-shell relative overflow-x-hidden overflow-y-auto bg-black text-[#F4EDE5]">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        {HOME_STARS.map((star, index) => (
-          <span
-            key={`${star.left}-${star.top}-${index}`}
-            className="space-star"
-            style={{
-              top: star.top,
-              left: star.left,
-              width: `${star.size}px`,
-              height: `${star.size}px`,
-              animationDelay: star.delay,
-              animationDuration: star.duration
-            }}
-          />
-        ))}
-
-        <div className={`space-planet-wrap ${keyboardOpen ? "opacity-35" : ""}`}>
-          <div className="space-planet-glow" />
-          <div className="space-planet" />
-        </div>
-      </div>
+      <SpaceBackdrop dimPlanet={keyboardOpen} />
 
       <div className="relative z-10 mx-auto flex min-h-full w-full max-w-[28rem] flex-col px-6 pb-8 pt-8 sm:max-w-[31rem] sm:px-8 sm:pb-10 sm:pt-10 lg:max-w-[72rem] lg:px-10">
         <section
@@ -115,15 +76,7 @@ export function InputExperience() {
             className={`space-y-2 ${keyboardOpen ? "animate-reveal pt-1" : "animate-reveal pt-4"}`}
             style={{ animationDelay: "120ms" }}
           >
-            <p className="space-home-top text-[18px] leading-none tracking-[-0.03em] text-[#D6C9BD] sm:text-[20px]">
-              A brutally
-            </p>
-            <div className="space-y-0.5 leading-[0.9]">
-              <p className="space-home-playful text-[62px] text-[#F39241] sm:text-[70px]">playful</p>
-              <p className="space-home-reality text-[52px] text-[#F2EEE8] sm:text-[58px]">
-                reality check
-              </p>
-            </div>
+            <SpaceWordmark />
           </div>
 
           <div
@@ -180,9 +133,9 @@ export function InputExperience() {
               <button
                 type="submit"
                 disabled={!isValid || isSubmitting}
-                className="rounded-full border border-[#F39241] bg-[#F39241]/10 px-6 py-3 text-[12px] font-medium uppercase tracking-[0.22em] text-[#F5EDE5] transition duration-300 hover:bg-[#F39241]/20 disabled:cursor-not-allowed disabled:border-white/12 disabled:bg-white/5 disabled:text-white/38"
+                className="rounded-full border border-[#F39241] bg-[#F39241] px-6 py-3 text-[12px] font-semibold uppercase tracking-[0.22em] text-black shadow-[0_10px_28px_rgba(243,146,65,0.28)] transition duration-300 hover:bg-[#FFB066] disabled:cursor-not-allowed disabled:border-white/12 disabled:bg-white/8 disabled:text-white/36 disabled:shadow-none"
               >
-                {isSubmitting ? "Un attimo" : "Valuta il piano"}
+                {isSubmitting ? "Un attimo" : "Valuta il tuo piano"}
               </button>
             </div>
           </form>

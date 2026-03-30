@@ -168,6 +168,38 @@ textarea {
   font-weight: 700;
 }
 
+.space-wordmark {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  text-align: center;
+}
+
+.space-wordmark-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  line-height: 0.9;
+}
+
+.space-wordmark-compact {
+  align-items: flex-start;
+  text-align: left;
+}
+
+.space-wordmark-compact .space-home-top {
+  font-size: 0.98rem;
+}
+
+.space-wordmark-compact .space-home-playful {
+  font-size: 2.6rem;
+}
+
+.space-wordmark-compact .space-home-reality {
+  font-size: 2.2rem;
+}
+
 .space-star {
   position: absolute;
   border-radius: 999px;
@@ -301,5 +333,17 @@ textarea {
   .space-planet-glow {
     inset: auto 12% 4rem;
     height: 5.5rem;
+  }
+
+  .space-wordmark-compact .space-home-top {
+    font-size: 0.84rem;
+  }
+
+  .space-wordmark-compact .space-home-playful {
+    font-size: 2.05rem;
+  }
+
+  .space-wordmark-compact .space-home-reality {
+    font-size: 1.78rem;
   }
 }

@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { APP_NAME } from "@/lib/brand";
-import { BrandMark } from "@/components/brand-mark";
-import { MeterArc } from "@/components/meter-arc";
+import { SpaceBackdrop } from "@/components/space-backdrop";
+import { SpaceWordmark } from "@/components/space-wordmark";
 import { analyzePlan, PLAN_SESSION_KEY, type AnalysisResult } from "@/lib/analyze-plan";
 import { useViewportMetrics } from "@/lib/use-viewport-metrics";
 
@@ -17,49 +17,18 @@ const LOADING_STEPS = [
 
 const LOADING_PROGRESS = [18, 44, 71, 93];
 
-function IndicatorRow({
-  label,
-  value,
-  score
-}: {
-  label: string;
-  value: number;
-  score: number;
-}) {
-  const accent =
-    score <= 30 ? "#BFB8AB" : score <= 60 ? "#D8A16A" : score <= 80 ? "#FF6B3D" : "#E4572E";
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between gap-3 text-[15px] sm:text-sm">
-        <span className="text-black/58">{label}</span>
-        <span className="font-medium text-text">{value}</span>
-      </div>
-      <div className="h-2 overflow-hidden rounded-full bg-black/6">
-        <div
-          className="h-full rounded-full transition-[width] duration-700 ease-out"
-          style={{
-            width: `${value}%`,
-            background: `linear-gradient(90deg, ${accent} 0%, ${accent} 100%)`
-          }}
-        />
-      </div>
-    </div>
-  );
-}
-
 function useAnimatedNumber(target: number) {
   const [value, setValue] = useState(0);
 
   useEffect(() => {
     let frame = 0;
     const start = performance.now();
-    const duration = 860;
+    const duration = 920;
 
     const tick = (now: number) => {
       const progress = Math.min((now - start) / duration, 1);
-      const nextValue = Math.round(target * (1 - (1 - progress) * (1 - progress)));
-      setValue(nextValue);
+      const eased = 1 - (1 - progress) * (1 - progress);
+      setValue(Math.round(target * eased));
 
       if (progress < 1) {
         frame = window.requestAnimationFrame(tick);
@@ -77,36 +46,77 @@ function useAnimatedNumber(target: number) {
   return value;
 }
 
+function indicatorAccent(value: number) {
+  if (value <= 30) {
+    return "#D6C9BD";
+  }
+
+  if (value <= 60) {
+    return "#F0B06E";
+  }
+
+  if (value <= 80) {
+    return "#F39241";
+  }
+
+  return "#FF6B3D";
+}
+
+function IndicatorTile({ label, value }: { label: string; value: number }) {
+  const accent = indicatorAccent(value);
+
+  return (
+    <div className="rounded-[18px] border border-white/10 bg-white/[0.03] p-3.5 backdrop-blur-sm">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-[#A59689]">{label}</p>
+      <div className="mt-2 flex items-end justify-between gap-3">
+        <span className="text-[28px] font-semibold leading-none tracking-[-0.04em] text-[#F4EDE5]">
+          {value}
+        </span>
+        <span className="text-[12px] uppercase tracking-[0.18em] text-[#8E847C]">/100</span>
+      </div>
+      <div className="mt-3 h-[3px] overflow-hidden rounded-full bg-white/10">
+        <div
+          className="h-full rounded-full transition-[width] duration-700 ease-out"
+          style={{ width: `${value}%`, backgroundColor: accent }}
+        />
+      </div>
+    </div>
+  );
+}
+
 function LoadingScreen({ index }: { index: number }) {
   return (
-    <main className="viewport-shell overflow-y-auto lg:overflow-y-hidden">
-      <div className="mx-auto flex min-h-full max-w-6xl flex-col px-4 py-4 sm:px-8 sm:py-6 lg:h-full lg:px-10 lg:py-8">
-        <header className="flex flex-col gap-2 pb-3 sm:flex-row sm:items-start sm:justify-between sm:pb-5">
-          <BrandMark />
-          <p className="self-end text-[15px] text-black/44 sm:self-auto">Analisi</p>
-        </header>
+    <main className="viewport-shell relative overflow-x-hidden overflow-y-auto bg-black text-[#F4EDE5]">
+      <SpaceBackdrop />
 
-        <section className="flex flex-1 items-center justify-center">
-          <div className="surface-panel flex w-full max-w-3xl flex-col items-center rounded-[32px] px-5 py-10 text-center sm:px-8 sm:py-10">
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <p className="eyebrow text-[11px] text-black/34">Valutazione</p>
-                <p className="font-display text-[38px] font-semibold leading-[0.96] tracking-[-0.05em] text-text sm:text-[40px]">
-                  {LOADING_STEPS[index]}
-                </p>
-              </div>
+      <div className="relative z-10 mx-auto flex min-h-full w-full max-w-[28rem] flex-col px-6 pb-10 pt-8 sm:max-w-[31rem] sm:px-8 sm:pb-12 sm:pt-10">
+        <section className="mx-auto flex w-full max-w-[22rem] flex-1 flex-col items-center justify-center gap-6 text-center sm:max-w-[24rem]">
+          <div className="animate-reveal" style={{ animationDelay: "120ms" }}>
+            <SpaceWordmark compact />
+          </div>
 
-              <MeterArc score={LOADING_PROGRESS[index]} label="Analisi in corso" showScale={false} />
+          <div className="animate-reveal flex flex-col items-center gap-3" style={{ animationDelay: "240ms" }}>
+            <div className="space-rocket" />
+            <div className="space-trail h-20 sm:h-24" />
+          </div>
 
-              <div className="mx-auto h-1.5 w-full max-w-md overflow-hidden rounded-full bg-black/7">
-                <div
-                  className="h-full rounded-full bg-[#FF6B3D] transition-[width] duration-500 ease-out"
-                  style={{ width: `${LOADING_PROGRESS[index]}%` }}
-                />
-              </div>
-
-              <p className="text-[15px] text-black/40">{LOADING_PROGRESS[index]} / 100</p>
+          <div
+            className="w-full animate-reveal rounded-[24px] border border-white/10 bg-black/60 p-5 backdrop-blur-sm"
+            style={{ animationDelay: "360ms" }}
+          >
+            <p className="text-[11px] uppercase tracking-[0.22em] text-[#A59689]">Analisi in corso</p>
+            <p className="mt-3 text-[28px] leading-[1.08] tracking-[-0.04em] text-[#F4EDE5] sm:text-[32px]">
+              {LOADING_STEPS[index]}
+            </p>
+            <div className="mt-5 h-[3px] overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-[#F39241] transition-[width] duration-500 ease-out"
+                style={{ width: `${LOADING_PROGRESS[index]}%` }}
+              />
             </div>
+            <p className="mt-3 text-[12px] uppercase tracking-[0.18em] text-[#8E847C]">
+              {LOADING_PROGRESS[index]} / 100
+            </p>
           </div>
         </section>
       </div>
@@ -172,9 +182,9 @@ export function ResultExperience() {
 
     return [
       { label: "Realismo", value: result.indicatori.realismo },
-      { label: "Impulsività", value: result.indicatori.impulsivita },
+      { label: "Impulsivita", value: result.indicatori.impulsivita },
       { label: "Danno economico", value: result.indicatori.dannoEconomico },
-      { label: "Main character energy", value: result.indicatori.mainCharacterEnergy }
+      { label: "Main character", value: result.indicatori.mainCharacterEnergy }
     ];
   }, [result]);
 
@@ -215,10 +225,6 @@ export function ResultExperience() {
     router.push("/");
   }
 
-  function handleBackHome() {
-    router.push("/");
-  }
-
   async function handleShare() {
     if (!result) {
       return;
@@ -240,116 +246,99 @@ export function ResultExperience() {
   }
 
   return (
-    <main className="viewport-shell overflow-y-auto lg:overflow-y-hidden">
-      <div className="mx-auto flex min-h-full max-w-6xl flex-col px-4 py-4 sm:px-8 sm:py-6 lg:h-full lg:px-10 lg:py-8">
-        <header className="flex flex-col gap-2 pb-3 sm:flex-row sm:items-start sm:justify-between sm:pb-5">
-          <BrandMark />
-          <button
-            type="button"
-            onClick={handleBackHome}
-            className="self-end text-[15px] text-black/48 transition hover:text-text sm:self-auto"
-          >
-            Torna all&apos;inizio
-          </button>
+    <main className="viewport-shell relative overflow-x-hidden overflow-y-auto bg-black text-[#F4EDE5]">
+      <SpaceBackdrop />
+
+      <div className="relative z-10 mx-auto flex min-h-full w-full max-w-[30rem] flex-col px-6 pb-10 pt-8 sm:max-w-[34rem] sm:px-8 sm:pb-12 sm:pt-10 lg:max-w-[74rem] lg:px-10">
+        <header className="animate-reveal" style={{ animationDelay: "80ms" }}>
+          <div className="flex items-start justify-between gap-4">
+            <SpaceWordmark compact />
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="pt-2 text-[12px] uppercase tracking-[0.18em] text-[#A59689] transition hover:text-[#F39241]"
+            >
+              Riprova
+            </button>
+          </div>
         </header>
 
-        <section className="flex min-h-0 flex-1 items-stretch">
-          <div className="surface-panel grid w-full gap-4 overflow-visible rounded-[32px] p-4 sm:gap-5 sm:p-5 lg:h-full lg:min-h-0 lg:grid-cols-[0.45fr_0.55fr] lg:gap-8 lg:overflow-hidden lg:rounded-[36px] lg:p-6">
-            <div className="order-2 flex min-h-0 flex-col justify-between gap-4 lg:order-1 lg:gap-5">
-              <div className="space-y-4">
-                <div className="space-y-3">
-                  <h1 className="max-w-[24rem] font-display text-[44px] font-semibold leading-[0.92] tracking-[-0.06em] text-text sm:text-[42px] lg:text-[48px]">
-                    {result.verdict}
-                  </h1>
-                  <p className="max-w-[28rem] text-[18px] leading-8 text-black/62 sm:text-[17px]">
-                    {result.sintesi}
-                  </p>
-                  <p className="max-w-[26rem] text-[22px] leading-9 tracking-[-0.02em] text-text sm:text-[20px]">
-                    {result.fraseFinale}
-                  </p>
-                </div>
+        <section className="mx-auto flex w-full max-w-[23rem] flex-1 flex-col justify-center gap-5 pt-6 text-center sm:max-w-[26rem] sm:pt-8 lg:max-w-none lg:grid lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-10 lg:text-left">
+          <div className="space-y-5 animate-reveal" style={{ animationDelay: "160ms" }}>
+            <div className="space-y-2">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-[#A59689]">Indice di delirio</p>
+              <div className="flex items-end justify-center gap-2 lg:justify-start">
+                <span className="space-home-playful text-[88px] leading-none text-[#F39241] sm:text-[98px]">
+                  {animatedScore}
+                </span>
+                <span className="pb-3 text-[18px] uppercase tracking-[0.18em] text-[#C8B9AA]">/100</span>
               </div>
+            </div>
 
-              <div className="flex flex-wrap gap-2">
-                {result.tratti.map((trait) => (
-                  <span
-                    key={trait}
-                    className="micro-chip rounded-full px-3.5 py-2 text-[16px] text-black/60 sm:text-[15px]"
-                  >
-                    {trait}
-                  </span>
-                ))}
-              </div>
+            <div className="space-y-3">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-[#A59689]">{result.categoria}</p>
+              <h1 className="text-[38px] leading-[0.98] tracking-[-0.05em] text-[#F4EDE5] sm:text-[46px]">
+                {result.verdict}
+              </h1>
+              <p className="text-[17px] leading-7 text-[#D6C9BD] sm:text-[18px]">{result.sintesi}</p>
+              <p className="text-[19px] italic leading-8 text-[#F39241] sm:text-[20px]">{result.fraseFinale}</p>
+            </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={handleRetry}
-                  className="rounded-full bg-text px-5 py-4 text-[17px] font-medium text-white transition hover:bg-[#262626] sm:text-[15px]"
+            <div className="flex flex-col items-center gap-2 lg:items-start">
+              <div className="space-rocket" />
+              <div className="space-trail h-14" />
+            </div>
+          </div>
+
+          <div className="space-y-4 animate-reveal" style={{ animationDelay: "280ms" }}>
+            <div className="rounded-[22px] border border-[#F39241] bg-black/72 p-4 shadow-[0_0_0_1px_rgba(243,146,65,0.12),0_0_30px_rgba(243,146,65,0.08)] backdrop-blur-sm">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-[#A59689]">La tua idea</p>
+              <p className="mt-3 text-[22px] italic leading-9 tracking-[-0.02em] text-[#E8DED4]">
+                {plan.toLowerCase()}
+              </p>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              {indicators.map((indicator) => (
+                <IndicatorTile key={indicator.label} label={indicator.label} value={indicator.value} />
+              ))}
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
+              {result.tratti.map((trait) => (
+                <span
+                  key={trait}
+                  className="rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[13px] uppercase tracking-[0.18em] text-[#D6C9BD]"
                 >
-                  Prova un altro piano
-                </button>
-                <button
-                  type="button"
-                  onClick={handleShare}
-                  className="rounded-full border hairline bg-white px-5 py-4 text-[17px] font-medium text-text transition hover:bg-[#FBFAF7] sm:text-[15px]"
-                >
-                  {shareState === "shared" ? "Risultato copiato" : "Condividi"}
-                </button>
-              </div>
+                  {trait}
+                </span>
+              ))}
+            </div>
 
+            <div className="grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
-                onClick={handleCopyVerdict}
-                className="w-fit text-[16px] font-medium text-black/52 transition hover:text-text sm:text-[15px] lg:mt-auto"
+                onClick={handleShare}
+                className="rounded-full border border-[#F39241] bg-[#F39241] px-5 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-black shadow-[0_10px_28px_rgba(243,146,65,0.28)] transition duration-300 hover:bg-[#FFB066]"
               >
-                {shareState === "copied" ? "Verdetto copiato" : "Copia il verdetto"}
+                {shareState === "shared" ? "Risultato copiato" : "Condividi"}
+              </button>
+              <button
+                type="button"
+                onClick={handleRetry}
+                className="rounded-full border border-white/14 bg-white/[0.03] px-5 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-[#F5EDE5] transition duration-300 hover:bg-white/[0.08]"
+              >
+                Un altro piano
               </button>
             </div>
 
-            <div className="order-1 grid min-h-0 gap-4 lg:order-2 lg:grid-rows-[auto_auto_1fr]">
-              <div className="grid gap-4 rounded-[28px] border hairline bg-[#FBFAF7] px-4 py-5 sm:px-5 sm:py-5 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
-                <div className="flex items-center justify-center">
-                  <MeterArc score={animatedScore} className="max-w-[320px] sm:max-w-[300px] lg:max-w-[260px]" showScale={false} />
-                </div>
-
-                <div className="space-y-3 text-center lg:text-left">
-                  <p className="eyebrow text-[12px] text-black/34">Indice di delirio</p>
-                  <div className="flex items-end justify-center gap-2 lg:justify-start">
-                    <span className="font-display text-[72px] font-semibold leading-none tracking-[-0.08em] text-text sm:text-[64px] lg:text-[70px]">
-                      {animatedScore}
-                    </span>
-                    <span className="pb-2 text-[16px] text-black/42 sm:text-[15px]">/ 100</span>
-                  </div>
-                  <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
-                    <div className="inline-flex rounded-full border hairline bg-white px-3 py-2 text-[16px] text-black/60 sm:text-[15px]">
-                      {result.categoria}
-                    </div>
-                    <div className="micro-chip rounded-full px-3 py-2 text-[16px] text-black/56 sm:text-[15px]">
-                      {result.tratti[0]}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-3 rounded-[28px] border hairline bg-white px-4 py-4 sm:grid-cols-2">
-                {indicators.map((indicator) => (
-                  <IndicatorRow
-                    key={indicator.label}
-                    label={indicator.label}
-                    value={indicator.value}
-                    score={result.score}
-                  />
-                ))}
-              </div>
-
-              <div className="rounded-[24px] border hairline bg-[#FBFAF7] px-4 py-4">
-                <p className="text-[11px] uppercase tracking-[0.18em] text-black/34">La tua idea</p>
-                <p className="mt-2 max-h-[112px] overflow-hidden text-[16px] leading-8 text-text sm:text-[15px]">
-                  &ldquo;{plan}&rdquo;
-                </p>
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={handleCopyVerdict}
+              className="text-[12px] uppercase tracking-[0.18em] text-[#A59689] transition hover:text-[#F39241]"
+            >
+              {shareState === "copied" ? "Verdetto copiato" : "Copia il verdetto"}
+            </button>
           </div>
         </section>
       </div>
