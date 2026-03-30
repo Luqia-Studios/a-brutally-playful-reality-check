@@ -131,7 +131,6 @@ export function ResultExperience() {
   const loadingIntervalRef = useRef<number | null>(null);
   const loadingTimeoutRef = useRef<number | null>(null);
 
-  const [plan, setPlan] = useState("");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [loadingStep, setLoadingStep] = useState(0);
   const [shareState, setShareState] = useState<"idle" | "shared" | "copied">("idle");
@@ -143,8 +142,6 @@ export function ResultExperience() {
       router.replace("/");
       return undefined;
     }
-
-    setPlan(storedPlan);
 
     loadingIntervalRef.current = window.setInterval(() => {
       setLoadingStep((current) => (current + 1) % LOADING_STEPS.length);
@@ -187,6 +184,10 @@ export function ResultExperience() {
       { label: "Main character", value: result.indicatori.mainCharacterEnergy }
     ];
   }, [result]);
+
+  const evaluationText = result
+    ? `${result.verdict}. ${result.sintesi} ${result.fraseFinale}`
+    : "";
 
   function resetShareState() {
     if (shareResetRef.current) {
@@ -238,7 +239,7 @@ export function ResultExperience() {
       return;
     }
 
-    await copyPayload(`${result.verdict}. ${result.fraseFinale}`, "copied");
+    await copyPayload(evaluationText, "copied");
   }
 
   if (!result) {
@@ -264,54 +265,26 @@ export function ResultExperience() {
         </header>
 
         <section className="mx-auto flex w-full max-w-[23rem] flex-1 flex-col justify-center gap-5 pt-6 text-center sm:max-w-[26rem] sm:pt-8 lg:max-w-none lg:grid lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-10 lg:text-left">
-          <div className="space-y-5 animate-reveal" style={{ animationDelay: "160ms" }}>
-            <div className="space-y-2">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-[#A59689]">Indice di delirio</p>
-              <div className="flex items-end justify-center gap-2 lg:justify-start">
-                <span className="space-home-playful text-[88px] leading-none text-[#F39241] sm:text-[98px]">
-                  {animatedScore}
-                </span>
-                <span className="pb-3 text-[18px] uppercase tracking-[0.18em] text-[#C8B9AA]">/100</span>
-              </div>
+          <div className="space-y-5 animate-reveal lg:col-span-2" style={{ animationDelay: "160ms" }}>
+            <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
+              <span className="rounded-full border border-[#F39241] bg-[#F39241]/10 px-3 py-1.5 text-[11px] uppercase tracking-[0.2em] text-[#F5C393]">
+                Indice di delirio {animatedScore}/100
+              </span>
+              <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] uppercase tracking-[0.2em] text-[#C8B9AA]">
+                {result.categoria}
+              </span>
             </div>
 
-            <div className="space-y-3">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-[#A59689]">{result.categoria}</p>
-              <h1 className="text-[38px] leading-[0.98] tracking-[-0.05em] text-[#F4EDE5] sm:text-[46px]">
-                {result.verdict}
-              </h1>
-              <p className="text-[17px] leading-7 text-[#D6C9BD] sm:text-[18px]">{result.sintesi}</p>
-              <p className="text-[19px] italic leading-8 text-[#F39241] sm:text-[20px]">{result.fraseFinale}</p>
-            </div>
-
-            <div className="flex flex-col items-center gap-2 lg:items-start">
-              <div className="space-rocket" />
-              <div className="space-trail h-14" />
-            </div>
-          </div>
-
-          <div className="space-y-4 animate-reveal" style={{ animationDelay: "280ms" }}>
-            <div className="rounded-[22px] border border-[#F39241] bg-black/72 p-4 shadow-[0_0_0_1px_rgba(243,146,65,0.12),0_0_30px_rgba(243,146,65,0.08)] backdrop-blur-sm">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-[#A59689]">La tua idea</p>
-              <p className="mt-3 text-[22px] italic leading-9 tracking-[-0.02em] text-[#E8DED4]">
-                {plan.toLowerCase()}
+            <div className="rounded-[24px] border border-[#F39241] bg-black/72 p-5 shadow-[0_0_0_1px_rgba(243,146,65,0.12),0_0_34px_rgba(243,146,65,0.08)] backdrop-blur-sm">
+              <p className="text-[11px] uppercase tracking-[0.22em] text-[#A59689]">Valutazione</p>
+              <p className="mt-4 text-[25px] italic leading-[1.45] tracking-[-0.025em] text-[#E8DED4] sm:text-[29px] sm:leading-[1.5]">
+                {evaluationText}
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               {indicators.map((indicator) => (
                 <IndicatorTile key={indicator.label} label={indicator.label} value={indicator.value} />
-              ))}
-            </div>
-
-            <div className="flex flex-wrap justify-center gap-2 lg:justify-start">
-              {result.tratti.map((trait) => (
-                <span
-                  key={trait}
-                  className="rounded-full border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[13px] uppercase tracking-[0.18em] text-[#D6C9BD]"
-                >
-                  {trait}
-                </span>
               ))}
             </div>
 
@@ -337,7 +310,7 @@ export function ResultExperience() {
               onClick={handleCopyVerdict}
               className="text-[12px] uppercase tracking-[0.18em] text-[#A59689] transition hover:text-[#F39241]"
             >
-              {shareState === "copied" ? "Verdetto copiato" : "Copia il verdetto"}
+              {shareState === "copied" ? "Valutazione copiata" : "Copia la valutazione"}
             </button>
           </div>
         </section>

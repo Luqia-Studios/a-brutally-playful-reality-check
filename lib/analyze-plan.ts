@@ -29,8 +29,38 @@ export type AnalysisResult = {
 };
 
 type SignalKey = "realismo" | "impulsivita" | "emotivo" | "economico" | "pratico" | "cinema";
+type ContextKey = "love" | "career" | "business" | "travel" | "money" | "purchase" | "life";
+type BandKey = "grounded" | "plausible" | "unstable" | "delusional" | "iconic";
+type SpecialScenario =
+  | "writeToEx"
+  | "quitNoClients"
+  | "escapeNoPlan"
+  | "buyNoMoney"
+  | "businessNoClients"
+  | null;
 
-const REALISM_WORDS = [
+type PlanFlags = {
+  noMoney: boolean;
+  noPlan: boolean;
+  noClients: boolean;
+  noExperience: boolean;
+  writeToEx: boolean;
+  moveAbroad: boolean;
+  quitJob: boolean;
+  buyingThing: boolean;
+  openBusiness: boolean;
+  dramaticReset: boolean;
+  hasBudget: boolean;
+  hasTimeline: boolean;
+  hasSafetyNet: boolean;
+  hasSupport: boolean;
+  hasClients: boolean;
+  immediate: boolean;
+};
+
+type VerdictLibrary = Record<BandKey, { default: string[] } & Partial<Record<ContextKey, string[]>>>;
+
+const PLANNING_WORDS = [
   "piano",
   "budget",
   "ricerca",
@@ -41,12 +71,51 @@ const REALISM_WORDS = [
   "part time",
   "risparmi",
   "risparmio",
-  "clienti",
-  "cliente",
+  "timeline",
   "mercato",
   "validare",
-  "timeline",
-  "backup"
+  "validazione",
+  "preordini",
+  "tabella",
+  "step",
+  "conti",
+  "margine",
+  "preventivo",
+  "provo",
+  "testare",
+  "check"
+];
+
+const SAFETY_WORDS = [
+  "backup",
+  "piano b",
+  "rete",
+  "contatti",
+  "con calma",
+  "intanto",
+  "mantengo il lavoro",
+  "tengo il lavoro",
+  "senza mollare tutto",
+  "prima testo",
+  "prima provo",
+  "riserva",
+  "uscita",
+  "uscite",
+  "entrate"
+];
+
+const TIMELINE_WORDS = [
+  "entro",
+  "fra",
+  "tra",
+  "settimana",
+  "settimane",
+  "mese",
+  "mesi",
+  "anno",
+  "anni",
+  "quest'anno",
+  "nel frattempo"
 ];
 
 const IMPULSIVE_WORDS = [
@@ -54,14 +123,16 @@ const IMPULSIVE_WORDS = [
   "mollo tutto",
   "subito",
   "domani",
+  "adesso",
   "parto",
   "one way",
-  "non ci penso",
   "all in",
-  "poi si vede",
+  "non ci penso",
   "senza pensarci",
+  "poi si vede",
   "tanto",
-  "adesso"
+  "appena posso",
+  "fanculo"
 ];
 
 const EMOTIONAL_WORDS = [
@@ -79,7 +150,10 @@ const EMOTIONAL_WORDS = [
   "dopo otto mesi",
   "dopo 8 mesi",
   "dimostrare",
-  "vendetta"
+  "vendetta",
+  "torno da lei",
+  "torno da lui",
+  "mi riprendo"
 ];
 
 const FINANCIAL_WORDS = [
@@ -97,7 +171,11 @@ const FINANCIAL_WORDS = [
   "giro del mondo",
   "prestito",
   "affitto",
-  "investo"
+  "investo",
+  "spendo",
+  "rata",
+  "mutuo",
+  "capitale"
 ];
 
 const PRACTICAL_RISK_WORDS = [
@@ -111,8 +189,10 @@ const PRACTICAL_RISK_WORDS = [
   "senza rete",
   "senza contatti",
   "non so come",
-  "vediamo",
-  "improvviso"
+  "improvviso",
+  "a caso",
+  "senza sapere",
+  "sulla fiducia"
 ];
 
 const CINEMATIC_WORDS = [
@@ -126,15 +206,49 @@ const CINEMATIC_WORDS = [
   "lascio tutto",
   "parto",
   "cambio vita",
-  "reset"
+  "reset",
+  "ricomincio da zero",
+  "nuova vita"
 ];
 
-const TRAIT_POOLS: Record<string, string[]> = {
-  grounded: ["lucido", "composto", "concreto", "misurato"],
-  impulsivita: ["impulsivo", "affrettato", "scoperto", "sbilanciato"],
-  emotivo: ["romantico", "esposto", "nostalgico", "sentimentale"],
-  economico: ["sottocapitalizzato", "costoso", "fragile", "scoperto"],
-  pratico: ["confuso", "teorico", "fragile", "mal supportato"],
+const EXPERIENCE_GAP_WORDS = [
+  "zero esperienza",
+  "senza esperienza",
+  "non l'ho mai fatto",
+  "non l'ho mai fatta",
+  "non so farlo",
+  "non so farla"
+];
+
+const CLIENT_POSITIVE_WORDS = ["clienti", "cliente", "richieste", "preordini", "domanda", "lead"];
+
+const CONTEXT_PATTERNS: Record<ContextKey, string[]> = {
+  love: ["ex", "le scrivo", "gli scrivo", "le riscrivo", "gli riscrivo", "appuntamento", "relazione"],
+  career: ["lavoro", "ufficio", "carriera", "mi licenzio", "freelance", "colloquio"],
+  business: ["bar", "studio", "agenzia", "negozio", "startup", "attivita", "azienda", "clienti"],
+  travel: ["portogallo", "van", "parto", "viaggio", "mondo", "trasferisco", "volo"],
+  money: ["soldi", "budget", "prestito", "debito", "capitale", "investo", "rata"],
+  purchase: ["compro", "moto", "macchina", "auto", "casa", "van", "acquisto"],
+  life: ["reset", "cambio vita", "sparisco", "ricomincio", "nuova vita", "mollo tutto"]
+};
+
+const CONTEXT_TRAITS: Record<ContextKey, string[]> = {
+  love: ["nostalgico", "tardivo", "romantico", "esposto"],
+  career: ["ambizioso", "stanco", "scoperto", "determinato"],
+  business: ["visionario", "sottocapitalizzato", "ostinato", "teatrale"],
+  travel: ["cinematico", "irrequieto", "romantico", "leggero"],
+  money: ["costoso", "fragile", "ottimista", "scoperto"],
+  purchase: ["impulsivo", "viziato", "convinto", "ottimista"],
+  life: ["teatrale", "instabile", "convinto", "irrequieto"]
+};
+
+const TRAIT_POOLS: Record<SignalKey | "grounded", string[]> = {
+  grounded: ["lucido", "misurato", "composto", "concreto"],
+  realismo: ["lucido", "strutturato", "ragionato", "solido"],
+  impulsivita: ["impulsivo", "affrettato", "sbilanciato", "scoperto"],
+  emotivo: ["esposto", "sentimentale", "nostalgico", "romantico"],
+  economico: ["costoso", "sottocapitalizzato", "fragile", "mal coperto"],
+  pratico: ["confuso", "teorico", "instabile", "mal supportato"],
   cinema: ["cinematico", "teatrale", "visionario", "ostinato"]
 };
 
@@ -146,52 +260,256 @@ const CATEGORY_LABELS = [
   { max: 100, label: "Iconicamente delirante" }
 ];
 
-const VERDICTS = {
-  low: [
-    "Fin troppo lucido",
-    "Quasi responsabile",
-    "Poco cinema, molta struttura",
-    "Sorprendentemente solido"
-  ],
-  mid: [
-    "Ambizioso ma plausibile",
-    "Rischioso ma difendibile",
-    "Visione forte, piedi ancora a terra",
-    "Coraggioso, non sconsiderato"
-  ],
+const VERDICT_LIBRARY: VerdictLibrary = {
+  grounded: {
+    default: [
+      "Sorprendentemente ragionato",
+      "Poco delirio, molta struttura",
+      "Quasi adulto",
+      "Insolitamente solido"
+    ],
+    love: ["Sentimentale con freni funzionanti", "Romantico ma non scomposto"],
+    career: ["Ambizione con ancora qualche freno", "Cambio di rotta abbastanza lucido"],
+    business: ["Visione con base minima credibile", "Brand first, ma con appigli veri"],
+    travel: ["Fuga moderata, logistica presente", "Cinema ridotto, piano aumentato"],
+    purchase: ["Acquisto quasi giustificabile", "Impulso con un minimo di conti"],
+    life: ["Reset con qualche cintura di sicurezza", "Crisi esistenziale insolitamente ordinata"]
+  },
+  plausible: {
+    default: [
+      "Ambizioso ma plausibile",
+      "Rischioso con criterio",
+      "Coraggioso, non sconsiderato",
+      "Visione forte, piedi ancora a terra"
+    ],
+    love: ["Emotivo ma non completamente cieco", "Romantico, ma con un minimo di tempismo"],
+    career: ["Svolta seria con qualche buco", "Cambio professionale ancora difendibile"],
+    business: ["Idea viva, struttura appena sufficiente", "Business acerbo ma non inventato"],
+    travel: ["Fuga ben narrata, logistica quasi presente", "Partenza ambiziosa, ancora plausibile"],
+    money: ["Rischio economico sotto osservazione", "Finanziariamente teso ma non assurdo"],
+    purchase: ["Acquisto emotivo ma ancora spiegabile", "Spesa discutibile, non folle"],
+    life: ["Cambio vita con una bozza di mappa", "Reset con qualche coordinata"]
+  },
   unstable: {
     default: [
       "Instabile ma difendibile",
-      "Molto coraggio. Poco piano.",
-      "Piu slancio che sistema",
-      "Non impossibile. Solo mal supportato."
+      "Molto coraggio, poco sistema",
+      "Piu slancio che tenuta",
+      "Non impossibile, solo fragile"
     ],
-    emotivo: ["Emotivamente esposto", "Molta intenzione, poco tempismo", "Più nostalgia che strategia"],
-    economico: ["Rischioso e costoso", "Copertura debole, entusiasmo forte", "Più acquisto che piano"],
-    cinema: ["Piu cinema che strategia", "Visione forte, struttura debole", "Scenico, ma scoperto"]
+    love: ["Nostalgia con scarsa copertura", "Tempismo debole, sentimento fortissimo"],
+    career: ["Cambiamento esposto", "Ambizione alta, rete bassa"],
+    business: ["Business plan in bozza emotiva", "Molta identita, poca ossatura"],
+    travel: ["Fuga elegante, logistica intermittente", "Molto orizzonte, poca terra sotto"],
+    money: ["Costoso gia in teoria", "Ottimismo finanziario poco protetto"],
+    purchase: ["Acquisto impulsivo con storytelling", "Desiderio alto, giustificazione media"],
+    life: ["Reset con forte trailer, debole secondo atto", "Molto cambio vita, poca continuita"]
   },
-  high: {
+  delusional: {
     default: [
       "Delirante con metodo",
       "Bellissimo, ma poco realistico",
-      "Visione forte, struttura debole",
-      "Convinto. I fatti un po' meno."
+      "Molta narrativa, poca protezione",
+      "Convinto. I fatti un po meno."
     ],
-    emotivo: ["Emotivamente finanziato", "Nostalgia con ottima autostima", "Sentimenti sopra logistica"],
-    economico: ["Sottocapitalizzato con stile", "Più fascino che copertura", "Entusiasmo ad alto costo"],
-    cinema: ["Molto cinema, poca struttura", "Delirante con fascino", "Main character, nessuna rete"]
+    love: ["Emotivamente finanziato", "Grande fiducia, scarso contesto", "Sentimenti sopra logistica"],
+    career: ["Svolta professionale senza airbag", "Molta uscita, poco atterraggio"],
+    business: ["Visione forte, struttura debole", "Brand energy, business fragile"],
+    travel: ["Piu cinema che logistica", "Fuga con ottima fotografia, pessima preparazione"],
+    money: ["Entusiasmo ad alto costo", "Poco margine, ottimo coraggio"],
+    purchase: ["Checkout romantico, copertura assente", "Acquisto molto convinto, molto scoperto"],
+    life: ["Reset personale mal sostenuto", "Nuova vita, vecchia logistica"]
   },
   iconic: {
     default: [
       "Iconicamente delirante",
-      "Romantico, costoso, mal sostenuto",
-      "Magnificamente scoperto",
-      "Più leggenda che piano"
+      "Magnificamente mal sostenuto",
+      "Prestigio narrativo, copertura minima",
+      "Piu leggenda che piano"
     ],
-    emotivo: ["Delirio sentimentale di fascia alta", "Cuore in overdrive, logistica assente", "Romanticamente instabile"],
-    economico: ["Economicamente coraggioso in modo sbagliato", "Molto sogno, poca cassa", "Elegante, ma non coperto"],
-    cinema: ["Delirante con fascino", "Prestigio narrativo, supporto pratico nullo", "Cinema puro, produzione assente"]
+    love: ["Delirio sentimentale di fascia alta", "Romanticamente instabile", "Cuore in overdrive, logistica assente"],
+    career: ["Licenziamento con ambizione cinematica", "Svolta epica, protezione nulla"],
+    business: ["Impresa con ottimo poster e poca sostanza", "Startup spirituale, struttura assente"],
+    travel: ["Cinema puro, produzione assente", "Fuga da poster con logistica decorativa"],
+    money: ["Molto sogno, poca cassa", "Economicamente coraggioso nel modo sbagliato"],
+    purchase: ["Acquisto leggendario, copertura simbolica", "Troppo caro per essere un'intuizione"],
+    life: ["Cambio vita da trailer ufficiale", "Reset totale con supporto immaginario"]
   }
+};
+
+const SPECIAL_VERDICTS: Record<Exclude<SpecialScenario, null>, Record<BandKey, string[]>> = {
+  writeToEx: {
+    grounded: ["Sorprendentemente composto per essere una pessima idea"],
+    plausible: ["Romantico ma ancora gestibile", "Ritorno emotivo con qualche freno"],
+    unstable: ["Tempismo sentimentale discutibile", "Nostalgia con ambizioni operative"],
+    delusional: ["Emotivamente finanziato", "Riapertura di lore non autorizzata"],
+    iconic: ["Delirio sentimentale premium", "Sequel non richiesto ma prodotto benissimo"]
+  },
+  quitNoClients: {
+    grounded: ["Hai almeno una mezza rete sotto"],
+    plausible: ["Svolta scoperta ma ancora difendibile"],
+    unstable: ["Molto coraggio, zero fatturato", "Dimissioni con fede, non con clienti"],
+    delusional: ["Studio creativo con pubblico immaginario", "Licenziamento con ottimo branding interno"],
+    iconic: ["Business basato su aura personale", "Impresa mistica a fatturato futuro"]
+  },
+  escapeNoPlan: {
+    grounded: ["Fuga ordinata, evento raro"],
+    plausible: ["Partenza romantica, ancora spiegabile"],
+    unstable: ["Cambio vita con logistica intermittente", "Biglietto emotivo, piano assente"],
+    delusional: ["Molto cinema, poca mappa", "Road movie senza produzione esecutiva"],
+    iconic: ["Poster fortissimo, struttura nulla", "Fuga da festival con conti da improvvisazione"]
+  },
+  buyNoMoney: {
+    grounded: ["Desiderio costoso, ancora controllato"],
+    plausible: ["Acquisto discutibile ma non devastato"],
+    unstable: ["Piu desiderio che copertura", "Conto fragile, entusiasmo robusto"],
+    delusional: ["Spesa emotiva ad alta intensita", "Ottimo storytelling, pessimo budget"],
+    iconic: ["Checkout mitologico, portafoglio assente", "Acquisto di prestigio a copertura simbolica"]
+  },
+  businessNoClients: {
+    grounded: ["Hai almeno capito che servono clienti"],
+    plausible: ["Idea viva, domanda da verificare"],
+    unstable: ["Studio senza clienti, ma con molta autostima", "Business in fase di immaginazione assistita"],
+    delusional: ["Brand gia acceso, mercato non pervenuto", "Molta identita, zero trazione"],
+    iconic: ["Azienda spirituale a fatturato futuro", "Impresa bellissima, domanda opzionale"]
+  }
+};
+
+const SUMMARY_OPENERS: Record<ContextKey, string[]> = {
+  love: [
+    "Qui non stai gestendo un piano: stai gestendo un ritorno emotivo.",
+    "L'energia di questa idea e sentimentale prima ancora che pratica.",
+    "Si sente subito che il motore non e la strategia ma il sentimento."
+  ],
+  career: [
+    "Questa idea nasce da una spinta professionale forte, ma non ancora ben protetta.",
+    "Il desiderio di cambiare lavoro e chiaro. Il piano di atterraggio molto meno.",
+    "Sembra una svolta seria raccontata con ancora troppo slancio e poca rete."
+  ],
+  business: [
+    "L'intuizione di brand arriva forte. La struttura operativa entra dopo.",
+    "Qui c'e visione imprenditoriale, ma ancora in versione trailer.",
+    "L'idea si vende bene. E' la sostenibilita a restare piu timida."
+  ],
+  travel: [
+    "La fantasia di fuga e chiarissima. La parte terrestre un po meno.",
+    "Questo piano profuma di partenza molto prima che di organizzazione.",
+    "L'orizzonte e forte. La logistica sta ancora cercando di raggiungerlo."
+  ],
+  money: [
+    "Il denaro entra in questa storia con piu tensione che serenita.",
+    "La parte economica sembra la prima a chiedere spiegazioni.",
+    "Qui il rischio finanziario non e un dettaglio: e quasi un personaggio."
+  ],
+  purchase: [
+    "Sembra un acquisto raccontato come un destino.",
+    "L'oggetto ha molto fascino, la giustificazione un po meno.",
+    "C'e una forte energia da checkout emotivo in tutta la scena."
+  ],
+  life: [
+    "Questa idea suona come un reset personale con ottima colonna sonora.",
+    "Piace perche promette una nuova versione di te, non perche sia tranquilla.",
+    "Qui la narrativa del cambiamento e piu sviluppata della struttura."
+  ]
+};
+
+const SUMMARY_TENSIONS: Record<SignalKey, string[]> = {
+  realismo: [
+    "Almeno una parte del piano ha invitato anche la realta alla riunione.",
+    "La differenza la fa il fatto che non stai ignorando del tutto i dettagli.",
+    "La base e meno improvvisata di quanto il tono farebbe pensare."
+  ],
+  impulsivita: [
+    "Il problema e che accelera prima di aver capito bene dove atterrare.",
+    "La sua fragilita maggiore e la fretta con cui vuole diventare vero.",
+    "Sta correndo piu veloce della struttura che dovrebbe sostenerlo."
+  ],
+  emotivo: [
+    "Il motore principale qui e emotivo, non operativo.",
+    "La parte sentimentale e molto piu pronta della parte logistica.",
+    "C'e piu carica interiore che architettura esterna."
+  ],
+  economico: [
+    "La copertura economica e il primo punto che inizia a tremare.",
+    "I numeri sembrano l'unica parte non ancora convinta.",
+    "Finanziariamente la tenuta e piu aspirazionale che concreta."
+  ],
+  pratico: [
+    "La parte esecutiva e ancora un cantiere con ottimo tono di voce.",
+    "La teoria c'e. E' l'implementazione a essere ancora ornamentale.",
+    "Si capisce cosa vuoi fare. Molto meno come dovrebbe stare in piedi."
+  ],
+  cinema: [
+    "La narrativa personale e fortissima. Il supporto reale molto meno.",
+    "Ha grande presenza scenica, che non e la stessa cosa di stabilita.",
+    "Funziona benissimo come trailer. Meno come piano operativo."
+  ]
+};
+
+const SUMMARY_ENDINGS: Record<BandKey, string[]> = {
+  grounded: [
+    "Per questo il delirio resta sorprendentemente basso.",
+    "Non e noioso, ma e molto meno scomposto di quanto sembri.",
+    "La parte adulta sta ancora vincendo."
+  ],
+  plausible: [
+    "Regge ancora, anche se non senza attrito.",
+    "E' una scommessa, ma non ancora una fantasia pura.",
+    "Ha dei buchi, non ancora un collasso."
+  ],
+  unstable: [
+    "Non e follia piena, ma i punti di cedimento si vedono gia.",
+    "Tiene in piedi il tono, non ancora tutto il resto.",
+    "La struttura esiste, ma non abbastanza da rilassare nessuno."
+  ],
+  delusional: [
+    "Al momento convince piu per energia che per tenuta.",
+    "Si salva soprattutto perche ha fascino, non perche sia robusto.",
+    "E' li che il piano inizia a sembrare piu seducente che solido."
+  ],
+  iconic: [
+    "Ed e proprio questo che lo rende affascinante e pericoloso insieme.",
+    "E' spettacolare per le stesse ragioni per cui e mal protetto.",
+    "Funziona quasi solo perche l'hai raccontato benissimo."
+  ]
+};
+
+const FINAL_LINES: Record<ContextKey, string[]> = {
+  love: [
+    "Il cuore e gia partito. Il resto sta ancora cercando parcheggio.",
+    "Il problema non e il messaggio. E' tutto quello che lo circonda.",
+    "Molto sentimento. Pochissima copertura."
+  ],
+  career: [
+    "Hai la svolta. Ti manca ancora la rete.",
+    "L'uscita e pronta. L'atterraggio meno.",
+    "L'ambizione c'e. La protezione arriva dopo."
+  ],
+  business: [
+    "Il brand vive. Il modello operativo attende istruzioni.",
+    "Hai una visione. Ti manca la parte che fattura.",
+    "La forma c'e. La trazione e ancora in bozza."
+  ],
+  travel: [
+    "Il biglietto mentale c'e. Il piano di terra no.",
+    "La fuga ha stile. La logistica non ancora.",
+    "L'orizzonte e pronto. Il resto deve ancora vestirsi."
+  ],
+  money: [
+    "Ottimo entusiasmo. Scarsa copertura.",
+    "Il sogno e carino. Il cashflow non applaude.",
+    "Grande slancio. Piccolo margine."
+  ],
+  purchase: [
+    "L'oggetto ha fascino. Il conto molto meno.",
+    "Desiderio alto. Giustificazione fragile.",
+    "Lo vuoi tantissimo. Questo non e ancora un piano."
+  ],
+  life: [
+    "Grande scena di apertura. Secondo atto da scrivere.",
+    "Molta rinascita narrativa. Poca manutenzione pratica.",
+    "Nuova vita, vecchie vulnerabilita."
+  ]
 };
 
 function clamp(value: number, min: number, max: number) {
@@ -202,7 +520,8 @@ function normalizeText(value: string) {
   return value
     .toLowerCase()
     .normalize("NFD")
-    .replace(/\p{Diacritic}/gu, "");
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[’]/g, "'");
 }
 
 function countHits(text: string, patterns: string[]) {
@@ -227,6 +546,26 @@ function pickFrom<T>(values: T[], seed: number, offset = 0) {
   return values[(seed + offset) % values.length];
 }
 
+function scoreToBand(score: number): BandKey {
+  if (score <= 20) {
+    return "grounded";
+  }
+
+  if (score <= 40) {
+    return "plausible";
+  }
+
+  if (score <= 60) {
+    return "unstable";
+  }
+
+  if (score <= 80) {
+    return "delusional";
+  }
+
+  return "iconic";
+}
+
 function categoriaPerScore(score: number) {
   return CATEGORY_LABELS.find((item) => score <= item.max)?.label ?? "Iconicamente delirante";
 }
@@ -235,60 +574,261 @@ function leadingSignal(values: Array<{ key: SignalKey; value: number }>) {
   return values.slice().sort((left, right) => right.value - left.value)[0]?.key ?? "pratico";
 }
 
-function verdictPerScore(score: number, signal: SignalKey, seed: number) {
-  if (score <= 20) {
-    return pickFrom(VERDICTS.low, seed);
+function detectFlags(text: string): PlanFlags {
+  const noMoney = hasAny(text, ["non ho soldi", "senza soldi", "senza budget", "soldi non ne ho"]);
+  const noPlan = hasAny(text, ["senza piano", "nessun piano", "poi si vede", "senza sapere come"]);
+  const noClients = hasAny(text, ["senza clienti", "nessun cliente", "zero clienti"]);
+  const noExperience = hasAny(text, EXPERIENCE_GAP_WORDS);
+  const writeToEx = hasAny(text, ["le riscrivo", "gli riscrivo", "le scrivo", "gli scrivo", " ex"]);
+  const moveAbroad = hasAny(text, ["portogallo", "giro del mondo", "parto", "trasferisco", "cambio paese"]);
+  const quitJob = hasAny(text, ["mi licenzio", "lascio il lavoro", "mollo il lavoro", "mollo tutto"]);
+  const buyingThing = hasAny(text, ["compro", "mi compro", "moto", "macchina", "auto", "van", "casa"]);
+  const openBusiness = hasAny(text, ["apro", "bar", "studio", "agenzia", "locale", "attivita", "azienda"]);
+  const dramaticReset = hasAny(text, ["reset", "cambio vita", "sparisco", "ricomincio da zero", "nuova vita"]);
+  const hasBudget = hasAny(text, ["budget", "risparmi", "risparmio", "cassa", "margine", "capitale"]);
+  const hasTimeline = hasAny(text, TIMELINE_WORDS);
+  const hasSafetyNet = hasAny(text, SAFETY_WORDS);
+  const hasSupport = hasAny(text, ["partner", "socio", "rete", "contatti", "amico che", "insieme a"]);
+  const hasClients = hasAny(text, CLIENT_POSITIVE_WORDS) && !noClients;
+  const immediate = hasAny(text, ["subito", "domani", "adesso", "ora", "tra una settimana"]);
+
+  return {
+    noMoney,
+    noPlan,
+    noClients,
+    noExperience,
+    writeToEx,
+    moveAbroad,
+    quitJob,
+    buyingThing,
+    openBusiness,
+    dramaticReset,
+    hasBudget,
+    hasTimeline,
+    hasSafetyNet,
+    hasSupport,
+    hasClients,
+    immediate
+  };
+}
+
+function detectContext(text: string, flags: PlanFlags) {
+  const scores: Record<ContextKey, number> = {
+    love: countHits(text, CONTEXT_PATTERNS.love),
+    career: countHits(text, CONTEXT_PATTERNS.career),
+    business: countHits(text, CONTEXT_PATTERNS.business),
+    travel: countHits(text, CONTEXT_PATTERNS.travel),
+    money: countHits(text, CONTEXT_PATTERNS.money),
+    purchase: countHits(text, CONTEXT_PATTERNS.purchase),
+    life: countHits(text, CONTEXT_PATTERNS.life)
+  };
+
+  if (flags.writeToEx) scores.love += 5;
+  if (flags.quitJob) scores.career += 4;
+  if (flags.openBusiness) scores.business += 4;
+  if (flags.moveAbroad) scores.travel += 5;
+  if (flags.buyingThing) scores.purchase += 4;
+  if (flags.noMoney) scores.money += 3;
+  if (flags.dramaticReset) scores.life += 4;
+
+  return (Object.entries(scores).sort((left, right) => right[1] - left[1])[0]?.[0] as ContextKey) ?? "life";
+}
+
+function detectSpecialScenario(flags: PlanFlags): SpecialScenario {
+  if (flags.writeToEx) {
+    return "writeToEx";
   }
 
-  if (score <= 40) {
-    return pickFrom(VERDICTS.mid, seed);
+  if (flags.quitJob && flags.noClients) {
+    return "quitNoClients";
   }
 
-  if (score <= 60) {
-    if (signal === "emotivo") {
-      return pickFrom(VERDICTS.unstable.emotivo, seed);
-    }
-
-    if (signal === "economico") {
-      return pickFrom(VERDICTS.unstable.economico, seed);
-    }
-
-    if (signal === "cinema" || signal === "pratico") {
-      return pickFrom(VERDICTS.unstable.cinema, seed);
-    }
-
-    return pickFrom(VERDICTS.unstable.default, seed);
+  if (flags.moveAbroad && flags.noPlan) {
+    return "escapeNoPlan";
   }
 
-  if (score <= 80) {
-    if (signal === "emotivo") {
-      return pickFrom(VERDICTS.high.emotivo, seed);
-    }
-
-    if (signal === "economico") {
-      return pickFrom(VERDICTS.high.economico, seed);
-    }
-
-    if (signal === "cinema" || signal === "pratico") {
-      return pickFrom(VERDICTS.high.cinema, seed);
-    }
-
-    return pickFrom(VERDICTS.high.default, seed);
+  if (flags.buyingThing && flags.noMoney) {
+    return "buyNoMoney";
   }
 
-  if (signal === "emotivo") {
-    return pickFrom(VERDICTS.iconic.emotivo, seed);
+  if (flags.openBusiness && flags.noClients) {
+    return "businessNoClients";
   }
 
-  if (signal === "economico") {
-    return pickFrom(VERDICTS.iconic.economico, seed);
+  return null;
+}
+
+function pickContextualValues(
+  library: { default: string[] } & Partial<Record<ContextKey, string[]>>,
+  context: ContextKey
+) {
+  return library[context] ?? library.default;
+}
+
+function buildVerdict({
+  band,
+  context,
+  scenario,
+  dominantSignal,
+  seed
+}: {
+  band: BandKey;
+  context: ContextKey;
+  scenario: SpecialScenario;
+  dominantSignal: SignalKey;
+  seed: number;
+}) {
+  if (scenario) {
+    return pickFrom(SPECIAL_VERDICTS[scenario][band], seed);
   }
 
-  if (signal === "cinema" || signal === "pratico") {
-    return pickFrom(VERDICTS.iconic.cinema, seed);
+  const contextValues = pickContextualValues(VERDICT_LIBRARY[band], context);
+  const offset = dominantSignal === "cinema" || dominantSignal === "pratico" ? 1 : 0;
+  return pickFrom(contextValues, seed, offset);
+}
+
+function buildSintesi({
+  band,
+  context,
+  dominantSignal,
+  scenario,
+  seed
+}: {
+  band: BandKey;
+  context: ContextKey;
+  dominantSignal: SignalKey;
+  scenario: SpecialScenario;
+  seed: number;
+}) {
+  if (scenario === "writeToEx") {
+    return pickFrom(
+      [
+        "Il piano si regge soprattutto su nostalgia, tempismo retroattivo e fiducia molto creativa.",
+        "C'e piu memoria selettiva che strategia, e si sente subito.",
+        "L'intenzione e forte. Il contesto favorevole molto meno."
+      ],
+      seed
+    );
   }
 
-  return pickFrom(VERDICTS.iconic.default, seed);
+  if (scenario === "quitNoClients") {
+    return pickFrom(
+      [
+        "La visione professionale c'e, ma il lato commerciale sta ancora in pre-produzione.",
+        "Hai gia il gesto epico. Ti manca la parte in cui qualcuno paga davvero.",
+        "L'uscita e chiara. La sostituzione di reddito no."
+      ],
+      seed
+    );
+  }
+
+  if (scenario === "escapeNoPlan") {
+    return pickFrom(
+      [
+        "La parte romantica della fuga e impeccabile. La parte pratica e quasi teorica.",
+        "Si sente il bisogno di movimento, non ancora una vera infrastruttura di partenza.",
+        "Il piano e suggestivo soprattutto perche sta evitando i dettagli piu costosi."
+      ],
+      seed
+    );
+  }
+
+  if (scenario === "buyNoMoney") {
+    return pickFrom(
+      [
+        "Qui il desiderio sta parlando molto piu forte del conto corrente.",
+        "La logica dell'acquisto e emotivamente chiarissima, economicamente molto meno.",
+        "La parte che vuole comprare e pronta. La parte che dovrebbe coprirla no."
+      ],
+      seed
+    );
+  }
+
+  if (scenario === "businessNoClients") {
+    return pickFrom(
+      [
+        "Hai gia l'identita del progetto, ma non ancora la prova che qualcuno ne abbia bisogno.",
+        "L'idea si presenta bene. La trazione reale resta ancora ipotetica.",
+        "E' un business soprattutto nella direzione artistica, per ora."
+      ],
+      seed
+    );
+  }
+
+  const opener = pickFrom(SUMMARY_OPENERS[context], seed);
+  const tension = pickFrom(SUMMARY_TENSIONS[dominantSignal], seed, 1);
+  const ending = pickFrom(SUMMARY_ENDINGS[band], seed, 2);
+
+  return `${opener} ${tension} ${ending}`;
+}
+
+function buildFinalLine({
+  context,
+  scenario,
+  band,
+  seed
+}: {
+  context: ContextKey;
+  scenario: SpecialScenario;
+  band: BandKey;
+  seed: number;
+}) {
+  if (scenario === "writeToEx") {
+    return pickFrom(
+      [
+        "Il cuore e gia in chat. Il buon senso no.",
+        "Il messaggio parte facile. Il dopo quasi mai.",
+        "Molto coraggio tardivo. Poco vantaggio reale."
+      ],
+      seed
+    );
+  }
+
+  if (scenario === "quitNoClients") {
+    return pickFrom(
+      [
+        "Hai il manifesto. Ti manca il fatturato.",
+        "Grande identita. Scarsa rete.",
+        "La scena e pronta. Il mercato no."
+      ],
+      seed
+    );
+  }
+
+  if (scenario === "escapeNoPlan") {
+    return pickFrom(
+      [
+        "Il biglietto mentale c'e. Il resto deve ancora presentarsi.",
+        "L'orizzonte e pronto. Il piano di terra no.",
+        "Molta fuga. Poca infrastruttura."
+      ],
+      seed
+    );
+  }
+
+  if (scenario === "buyNoMoney") {
+    return pickFrom(
+      [
+        "Lo vuoi tantissimo. Questo non vale come copertura.",
+        "Ottimo desiderio. Scarso margine.",
+        "L'oggetto ha fascino. Il conto molto meno."
+      ],
+      seed
+    );
+  }
+
+  if (band === "grounded") {
+    return pickFrom(
+      [
+        "Non e delirio. E' solo ambizione con un minimo di ordine.",
+        "Poco glamour, molta tenuta.",
+        "Hai tolto abbastanza caos da renderlo credibile."
+      ],
+      seed
+    );
+  }
+
+  return pickFrom(FINAL_LINES[context], seed);
 }
 
 function uniqueTrait(pool: string[], used: Set<string>, seed: number, shift: number) {
@@ -304,350 +844,163 @@ function uniqueTrait(pool: string[], used: Set<string>, seed: number, shift: num
   return pool[0];
 }
 
-function buildTraits(
-  realismo: number,
-  orderedSignals: SignalKey[],
-  seed: number
-) {
+function buildTraits({
+  realismo,
+  orderedSignals,
+  context,
+  band,
+  seed
+}: {
+  realismo: number;
+  orderedSignals: SignalKey[];
+  context: ContextKey;
+  band: BandKey;
+  seed: number;
+}) {
   const used = new Set<string>();
   const traits: string[] = [];
-  const groundedPool = realismo >= 58 ? TRAIT_POOLS.grounded : TRAIT_POOLS.pratico;
 
-  traits.push(uniqueTrait(groundedPool, used, seed, 0));
+  if (band === "grounded" || realismo >= 62) {
+    traits.push(uniqueTrait(TRAIT_POOLS.grounded, used, seed, 0));
+  } else {
+    traits.push(uniqueTrait(CONTEXT_TRAITS[context], used, seed, 0));
+  }
+
+  traits.push(uniqueTrait(CONTEXT_TRAITS[context], used, seed, 1));
 
   for (let index = 0; index < orderedSignals.length && traits.length < 3; index += 1) {
     const signal = orderedSignals[index];
-    const pool = TRAIT_POOLS[signal];
-
-    if (pool) {
-      traits.push(uniqueTrait(pool, used, seed, index + 1));
-    }
+    traits.push(uniqueTrait(TRAIT_POOLS[signal], used, seed, index + 2));
   }
 
   return traits.slice(0, 3);
-}
-
-function buildSintesi({
-  score,
-  realismo,
-  rischioPratico,
-  esposizioneEmotiva,
-  dannoEconomico,
-  mainCharacterEnergy,
-  noMoney,
-  noPlan,
-  noClients,
-  writeToEx,
-  moveAbroad,
-  seed
-}: {
-  score: number;
-  realismo: number;
-  rischioPratico: number;
-  esposizioneEmotiva: number;
-  dannoEconomico: number;
-  mainCharacterEnergy: number;
-  noMoney: boolean;
-  noPlan: boolean;
-  noClients: boolean;
-  writeToEx: boolean;
-  moveAbroad: boolean;
-  seed: number;
-}) {
-  if (score <= 20) {
-    return pickFrom(
-      [
-        "Più piano che fantasia. Meno interessante, ma molto più solido.",
-        "Qui il delirio è basso. Hai fatto entrare anche la realtà nella stanza.",
-        "L'idea respira bene perché non sta ignorando i dettagli."
-      ],
-      seed
-    );
-  }
-
-  if (writeToEx) {
-    return pickFrom(
-      [
-        "Il piano si regge soprattutto su nostalgia, coraggio tardivo e memoria selettiva.",
-        "C'è più carica emotiva che struttura. E si vede subito.",
-        "L'intenzione è chiara. Il contesto molto meno favorevole."
-      ],
-      seed
-    );
-  }
-
-  if (noClients) {
-    return pickFrom(
-      [
-        "L'idea ha identità, ma il lato commerciale è ancora ornamentale.",
-        "La visione è presente. La domanda reale non si è ancora presentata.",
-        "Hai già il tono del brand. Ti manca la parte in cui qualcuno paga."
-      ],
-      seed
-    );
-  }
-
-  if (noMoney) {
-    return pickFrom(
-      [
-        "Il fascino c'è, ma il supporto economico al momento è più poetico che concreto.",
-        "Sembra una decisione con energia. Non ancora con copertura.",
-        "Il problema non è il sogno. È chi deve finanziarlo."
-      ],
-      seed
-    );
-  }
-
-  if (noPlan && moveAbroad) {
-    return pickFrom(
-      [
-        "La fuga ha una sua eleganza. La logistica molto meno.",
-        "La visione è forte, ma si appoggia ancora a un vuoto operativo piuttosto serio.",
-        "Si sente il desiderio di cambio vita. Manca quasi tutta l'infrastruttura."
-      ],
-      seed
-    );
-  }
-
-  if (esposizioneEmotiva >= 72 && rischioPratico >= 62) {
-    return pickFrom(
-      [
-        "Molta convinzione personale, poca protezione pratica.",
-        "L'idea ha intensità, ma al momento si regge più sullo slancio che sulle basi.",
-        "La parte emotiva è arrivata puntuale. Il resto sta ancora cercando parcheggio."
-      ],
-      seed
-    );
-  }
-
-  if (dannoEconomico >= 70 && realismo <= 46) {
-    return pickFrom(
-      [
-        "L'energia è alta. La sostenibilità economica decisamente meno.",
-        "Sembra un piano costoso con poche difese laterali.",
-        "Hai preso una decisione che chiede solidità. Per ora hai soprattutto entusiasmo."
-      ],
-      seed
-    );
-  }
-
-  if (mainCharacterEnergy >= 78 && rischioPratico >= 65) {
-    return pickFrom(
-      [
-        "C'è una forte narrativa personale. Il supporto pratico non ha ancora firmato.",
-        "Molto carisma, poca infrastruttura.",
-        "Il piano ha presenza scenica. La parte operativa arriva dopo, forse."
-      ],
-      seed
-    );
-  }
-
-  return pickFrom(
-    [
-      "Il piano ha energia, ma al momento si regge più sulla convinzione che sulla logistica.",
-      "La visione c'è. È la struttura a sembrare ancora opzionale.",
-      "Non manca il coraggio. Manca la parte che lo rende tranquillo."
-    ],
-    seed
-  );
-}
-
-function buildFinalLine({
-  score,
-  realismo,
-  rischioPratico,
-  noMoney,
-  noPlan,
-  noClients,
-  writeToEx,
-  seed
-}: {
-  score: number;
-  realismo: number;
-  rischioPratico: number;
-  noMoney: boolean;
-  noPlan: boolean;
-  noClients: boolean;
-  writeToEx: boolean;
-  seed: number;
-}) {
-  if (writeToEx) {
-    return pickFrom(
-      [
-        "Il tempismo non è dalla tua. La fantasia sì.",
-        "L'idea è semplice. Le conseguenze quasi mai lo sono.",
-        "Più ritorno emotivo che strategia relazionale."
-      ],
-      seed
-    );
-  }
-
-  if (noClients) {
-    return pickFrom(
-      [
-        "La visione è viva. Il piano commerciale non ancora.",
-        "Hai il manifesto. Ti manca il mercato.",
-        "Il brand esiste già. Il business deve ancora presentarsi."
-      ],
-      seed
-    );
-  }
-
-  if (noMoney) {
-    return pickFrom(
-      [
-        "Molto fascino. Poco margine.",
-        "Il sogno è in forma. Il budget meno.",
-        "Hai una visione. Ti manca il capitale emotivamente neutro."
-      ],
-      seed
-    );
-  }
-
-  if (noPlan) {
-    return pickFrom(
-      [
-        "Il problema non è il sogno. È l'infrastruttura.",
-        "Coraggio alto. Piano operativo in ritardo.",
-        "Il movimento c'è. La direzione è ancora decorativa."
-      ],
-      seed
-    );
-  }
-
-  if (score <= 20 || realismo >= 70) {
-    return pickFrom(
-      [
-        "Non è delirio. È preparazione con un po' di ambizione.",
-        "Hai tolto abbastanza caos da rendere il piano credibile.",
-        "Poco glamour, molta tenuta."
-      ],
-      seed
-    );
-  }
-
-  if (rischioPratico >= 65) {
-    return pickFrom(
-      [
-        "Non è impossibile. È solo scarsamente preparato.",
-        "Hai una visione. Ti manca quasi tutto il resto.",
-        "Sei convinto. I fatti un po' meno."
-      ],
-      seed
-    );
-  }
-
-  return pickFrom(
-    [
-      "Il sogno è vivo. Il piano operativo non ancora.",
-      "La parte bella c'è. La parte solida è in ritardo.",
-      "Più stile che copertura, ma con ottima presenza."
-    ],
-    seed
-  );
 }
 
 export function analyzePlan(input: string): AnalysisResult {
   const piano = input.trim();
   const normalized = normalizeText(piano);
   const seed = hashText(normalized);
+  const flags = detectFlags(normalized);
+  const context = detectContext(normalized, flags);
+  const scenario = detectSpecialScenario(flags);
+
   const wordCount = normalized.split(/\s+/).filter(Boolean).length;
   const punctuationCount = (piano.match(/[!?]/g) ?? []).length;
   const clauseCount = piano.split(/[,.!?;:]+/).filter((chunk) => chunk.trim().length > 0).length;
   const multiStepCount = Math.max(0, clauseCount - 1);
 
-  const realismHits = countHits(normalized, REALISM_WORDS);
+  const planningHits = countHits(normalized, PLANNING_WORDS);
+  const safetyHits = countHits(normalized, SAFETY_WORDS);
+  const timelineHits = countHits(normalized, TIMELINE_WORDS);
   const impulsiveHits = countHits(normalized, IMPULSIVE_WORDS);
   const emotionalHits = countHits(normalized, EMOTIONAL_WORDS);
   const financialHits = countHits(normalized, FINANCIAL_WORDS);
   const practicalHits = countHits(normalized, PRACTICAL_RISK_WORDS);
   const cinematicHits = countHits(normalized, CINEMATIC_WORDS);
 
-  const noMoney = hasAny(normalized, ["non ho soldi", "senza soldi", "senza budget"]);
-  const noPlan = hasAny(normalized, ["senza piano", "nessun piano", "poi si vede"]);
-  const noClients = hasAny(normalized, ["senza clienti", "nessun cliente"]);
-  const writeToEx = hasAny(normalized, ["le riscrivo", "gli riscrivo", "le scrivo", "gli scrivo", " ex"]);
-  const moveAbroad = hasAny(normalized, ["portogallo", "giro del mondo", "parto", "cambio vita"]);
+  const planningStrength = clamp(
+    18 +
+      planningHits * 9 +
+      safetyHits * 9 +
+      timelineHits * 5 +
+      (flags.hasBudget ? 10 : 0) +
+      (flags.hasSafetyNet ? 10 : 0) +
+      (flags.hasSupport ? 7 : 0) +
+      (flags.hasClients ? 8 : 0) +
+      (wordCount >= 18 ? 5 : 0) +
+      (wordCount >= 28 ? 4 : 0) -
+      (flags.noPlan ? 22 : 0) -
+      (flags.noExperience ? 12 : 0),
+    4,
+    100
+  );
 
   const realismo = clamp(
-    62 +
-      realismHits * 12 -
-      impulsiveHits * 7 -
-      emotionalHits * 5 -
-      practicalHits * 12 -
-      financialHits * 2 -
-      multiStepCount * 4 -
-      (noPlan ? 14 : 0) -
-      (noClients ? 12 : 0) -
-      (noMoney ? 14 : 0) +
-      (wordCount >= 18 ? 5 : -4) +
-      (wordCount >= 28 ? 3 : 0),
-    6,
+    32 +
+      planningStrength * 0.56 -
+      impulsiveHits * 5 -
+      emotionalHits * 3 -
+      practicalHits * 8 -
+      (flags.noMoney ? 6 : 0) -
+      (flags.noPlan ? 10 : 0) -
+      (flags.noExperience ? 8 : 0) -
+      (flags.writeToEx ? 10 : 0) +
+      (multiStepCount > 0 ? 3 : 0),
+    5,
     96
   );
 
   const impulsivita = clamp(
-    18 +
-      impulsiveHits * 18 +
-      punctuationCount * 5 +
-      multiStepCount * 5 +
-      (normalized.includes("domani") ? 10 : 0) +
-      (normalized.includes("subito") ? 8 : 0) -
-      realismHits * 8,
-    6,
+    12 +
+      impulsiveHits * 16 +
+      punctuationCount * 4 +
+      multiStepCount * 4 +
+      (flags.immediate ? 12 : 0) +
+      (flags.quitJob ? 8 : 0) -
+      planningHits * 5 -
+      safetyHits * 6,
+    5,
     98
   );
 
   const esposizioneEmotiva = clamp(
-    10 +
-      emotionalHits * 20 +
-      punctuationCount * 3 +
-      (writeToEx ? 16 : 0),
+    8 +
+      emotionalHits * 18 +
+      punctuationCount * 2 +
+      (flags.writeToEx ? 18 : 0) +
+      (context === "love" ? 8 : 0),
     4,
     98
   );
 
   const rischioPratico = clamp(
-    20 +
+    16 +
       practicalHits * 18 +
-      cinematicHits * 4 +
-      multiStepCount * 4 +
-      (noPlan ? 20 : 0) +
-      (noClients ? 18 : 0) +
-      (noMoney ? 14 : 0) -
-      realismHits * 10,
-    8,
-    98
-  );
-
-  const dannoEconomico = clamp(
-    14 +
-      financialHits * 16 +
-      practicalHits * 5 +
-      (noMoney ? 22 : 0) +
-      (moveAbroad ? 8 : 0) -
-      realismHits * 6,
+      multiStepCount * 5 +
+      (flags.noPlan ? 22 : 0) +
+      (flags.noClients ? 18 : 0) +
+      (flags.noExperience ? 14 : 0) +
+      (flags.quitJob && !flags.hasSafetyNet ? 12 : 0) +
+      (flags.moveAbroad ? 8 : 0) -
+      planningStrength * 0.28,
     6,
     98
   );
 
+  const dannoEconomico = clamp(
+    12 +
+      financialHits * 14 +
+      (flags.buyingThing ? 10 : 0) +
+      (flags.openBusiness ? 12 : 0) +
+      (flags.moveAbroad ? 8 : 0) +
+      (flags.noMoney ? 26 : 0) +
+      (flags.noClients ? 6 : 0) -
+      (flags.hasBudget ? 12 : 0) -
+      planningHits * 2,
+    4,
+    98
+  );
+
   const mainCharacterEnergy = clamp(
-    16 +
-      cinematicHits * 20 +
+    14 +
+      cinematicHits * 18 +
       impulsivita * 0.2 +
-      esposizioneEmotiva * 0.16 +
-      (moveAbroad ? 8 : 0),
+      esposizioneEmotiva * 0.14 +
+      (flags.moveAbroad ? 10 : 0) +
+      (flags.quitJob ? 8 : 0) +
+      (flags.dramaticReset ? 12 : 0),
     8,
     100
   );
 
   const score = clamp(
-    (100 - realismo) * 0.34 +
-      impulsivita * 0.22 +
+    (100 - realismo) * 0.29 +
+      impulsivita * 0.19 +
       esposizioneEmotiva * 0.12 +
-      rischioPratico * 0.18 +
-      dannoEconomico * 0.14 +
-      Math.max(0, mainCharacterEnergy - 65) * 0.05,
+      dannoEconomico * 0.16 +
+      rischioPratico * 0.17 +
+      Math.max(0, mainCharacterEnergy - 55) * 0.08 -
+      planningStrength * 0.04,
     4,
     99
   );
@@ -666,34 +1019,37 @@ export function analyzePlan(input: string): AnalysisResult {
     .sort((left, right) => right.value - left.value)
     .map((item) => item.key);
 
-  const verdict = verdictPerScore(score, leadingSignal(signals), seed);
+  const dominantSignal = leadingSignal(signals);
+  const band = scoreToBand(score);
+  const verdict = buildVerdict({
+    band,
+    context,
+    scenario,
+    dominantSignal,
+    seed
+  });
   const categoria = categoriaPerScore(score);
   const sintesi = buildSintesi({
-    score,
-    realismo,
-    rischioPratico,
-    esposizioneEmotiva,
-    dannoEconomico,
-    mainCharacterEnergy,
-    noMoney,
-    noPlan,
-    noClients,
-    writeToEx,
-    moveAbroad,
+    band,
+    context,
+    dominantSignal,
+    scenario,
     seed
   });
   const fraseFinale = buildFinalLine({
-    score,
-    realismo,
-    rischioPratico,
-    noMoney,
-    noPlan,
-    noClients,
-    writeToEx,
+    context,
+    scenario,
+    band,
     seed
   });
-  const tratti = buildTraits(realismo, orderedSignals, seed);
-  const shareText = `Il mio piano ha preso ${score}/100 su ${APP_NAME}. ${verdict}.`;
+  const tratti = buildTraits({
+    realismo,
+    orderedSignals,
+    context,
+    band,
+    seed
+  });
+  const shareText = `Indice di delirio: ${score}/100 su ${APP_NAME} - ${verdict}.`;
 
   return {
     piano,
