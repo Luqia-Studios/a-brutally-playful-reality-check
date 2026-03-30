@@ -185,7 +185,7 @@ export function ResultExperience() {
   }, [result]);
 
   const evaluationLead = result ? result.verdict : "";
-  const evaluationText = result ? result.sintesi : "";
+  const evaluationText = result ? `${result.sintesi} ${result.puntoCieco}` : "";
 
   function resetShareState() {
     if (shareResetRef.current) {
