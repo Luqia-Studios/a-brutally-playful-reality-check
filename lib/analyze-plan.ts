@@ -46,7 +46,7 @@ type Flags = {
 const CAT = [{ max: 20, label: "Fin troppo lucido" }, { max: 40, label: "Ambizioso ma plausibile" }, { max: 60, label: "Instabile ma difendibile" }, { max: 80, label: "Delirante con metodo" }, { max: 100, label: "Iconicamente delirante" }];
 const THEME_LABEL: Record<Theme, string> = { relazioni: "relazioni", lavoro: "lavoro", soldi: "soldi", viaggio: "viaggio", acquisto: "acquisto", fuga: "fuga / cambio vita", creativo: "progetto creativo", misto: "misto", altro: "altro" };
 const DRIVER_LABEL: Record<Driver, string> = { fuga: "fuga", impulsivita: "impulsivita", nostalgia: "nostalgia", ego: "ego", romanticismo: "romanticismo", saturazione: "saturazione", rivalsa: "rivalsa", noia: "noia", reset: "bisogno di reset", controllo: "fantasia di controllo" };
-const SAFETY = { violence: ["uccido", "ammazzo", "picchio", "violenza", "aggressione"], abuse: ["costringo", "obbligo", "ricatto", "minaccio", "coercizione"], drugs: ["cocaina", "eroina", "mdma", "spaccio", "droga illegale"], crime: ["rubare", "truffa", "truffare", "evasione", "documenti falsi", "reato"], stalking: ["stalking", "la seguo", "lo seguo", "la controllo", "lo controllo"], self: ["suicidio", "uccidermi", "ammazzarmi", "mi faccio male", "mi taglio", "autolesionismo"], noncons: ["senza consenso", "non consensuale", "minorenne", "minori", "sfruttamento", "revenge porn"] } as const;
+const SAFETY = { violence: ["uccido", "ammazzo", "picchio", "violenza", "aggressione"], abuse: ["costringo", "obbligo", "ricatto", "minaccio", "coercizione"], drugs: ["cocaina", "eroina", "mdma", "spaccio", "droga illegale"], crime: ["rubare", "truffa", "truffare", "evasione", "documenti falsi", "reato"], stalking: ["stalking", "la seguo", "lo seguo", "la controllo", "lo controllo"], self: ["suicidio", "uccidermi", "ammazzarmi", "mi faccio male", "mi taglio", "autolesionismo"], noncons: ["senza consenso", "non consensuale", "minorenne", "minori", "sfruttamento", "revenge porn"], toxic: ["candeggina", "varechina", "ammoniaca", "detersivo", "detergente", "solvente", "veleno", "disinfettante", "alcool denaturato", "acido muriatico", "antigelo"] } as const;
 const T = {
   relazioni: ["le scrivo", "gli scrivo", "le riscrivo", "gli riscrivo", "ex", "relazione", "appuntamento"],
   lavoro: ["lavoro", "ufficio", "mi licenzio", "carriera", "colloquio", "freelance"],
@@ -81,9 +81,13 @@ const catOf = (score: number) => CAT.find((x) => score <= x.max)?.label ?? "Icon
 
 function detectSafety(t: string) {
   const violent = hasAny(t, SAFETY.violence), abusive = hasAny(t, SAFETY.abuse), drugs = hasAny(t, SAFETY.drugs), crime = hasAny(t, SAFETY.crime), stalking = hasAny(t, SAFETY.stalking), self = hasAny(t, SAFETY.self), noncons = hasAny(t, SAFETY.noncons);
-  const safetyMode = violent || abusive || drugs || crime || stalking || self || noncons;
-  const blocked = violent || abusive || stalking || self || noncons;
-  return { safetyMode, blocked, severity: clamp(84 + Number(blocked) * 8 + Number(drugs || crime) * 4 + Number(self) * 4, 85, 100), reason: self ? "self" : noncons ? "noncons" : violent ? "violence" : abusive ? "abuse" : stalking ? "stalking" : drugs ? "drugs" : crime ? "crime" : null };
+  const ingest = hasAny(t, ["bere", "bermi", "berne", "ingerire", "inghiottire", "mangiare", "assumere", "iniettare"]);
+  const toxic = hasAny(t, SAFETY.toxic);
+  const poison = toxic && ingest;
+  const harmfulRemedy = poison || (toxic && hasAny(t, ["raffreddore", "influenza", "febbre", "mal di gola", "tosse", "guarire", "curare"]));
+  const safetyMode = violent || abusive || drugs || crime || stalking || self || noncons || harmfulRemedy;
+  const blocked = violent || abusive || stalking || self || noncons || harmfulRemedy;
+  return { safetyMode, blocked, severity: clamp(84 + Number(blocked) * 8 + Number(drugs || crime) * 4 + Number(self) * 4 + Number(harmfulRemedy) * 6, 85, 100), reason: self ? "self" : noncons ? "noncons" : harmfulRemedy ? "poison" : violent ? "violence" : abusive ? "abuse" : stalking ? "stalking" : drugs ? "drugs" : crime ? "crime" : null };
 }
 
 function detectFlags(t: string): Flags {
@@ -155,7 +159,12 @@ function detectScenario(t: string, f: Flags): Scenario {
 
 function safetyResult(input: string, seed: number, s: ReturnType<typeof detectSafety>): AnalysisResult {
   const verdict = pick(["Questo non rientra nel delirio poetico.", "Qui il problema non e la visione.", "Questo esce dal gioco."], seed);
-  const tail = s.reason === "self" ? "Qui serve fermarsi, non romanticizzare." : "Rientra nel danno reale.";
+  const tail =
+    s.reason === "self"
+      ? "Qui serve fermarsi, non romanticizzare."
+      : s.reason === "poison"
+        ? "Qui il problema e un rischio tossico reale, non una soluzione creativa."
+        : "Rientra nel danno reale.";
   const dissociazione = clamp(s.severity - 2, 85, 98), impulsivita = clamp(58 + (seed % 24), 58, 92), dannoPratico = clamp(s.severity + 4, 90, 100), poetico = clamp(10 + (seed % 12), 8, 26);
   const score = clamp(dissociazione * 0.3 + impulsivita * 0.25 + dannoPratico * 0.25 + poetico * 0.2, 85, 100);
   return { piano: input.trim(), tema: "illegale / dannoso", driver: DRIVER_LABEL.controllo, safetyMode: true, blocked: s.blocked, score, categoria: s.blocked ? "Danno reale" : "Alta allerta", verdict, sintesi: `${verdict} ${tail}`, cosaRegge: "Qui non c'e nulla da glamourizzare.", cosaNonRegge: "Non regge perche il rischio concreto viene prima di qualsiasi narrativa.", puntoCieco: "Stai trattando un danno reale come se fosse ancora una scena da raccontare.", fraseFinale: pick(["Qui non serve fascino. Serve fermarsi.", "Non c'e niente di cinematografico nel danno.", "Il rischio concreto cancella ogni glamour."], seed), tratti: ["pericoloso", "lesivo", "grave"], indicatori: { dissociazione, impulsivita, dannoPratico, poetico }, shareText: `Indice di delirio: ${score}/100 - ${verdict} ${tail}` };
