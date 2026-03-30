@@ -149,6 +149,131 @@ textarea {
   background: rgba(255, 255, 255, 0.82);
 }
 
+.space-home-top,
+.space-home-playful,
+.space-home-reality {
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.space-home-top {
+  font-weight: 500;
+}
+
+.space-home-playful {
+  font-style: italic;
+  font-weight: 700;
+}
+
+.space-home-reality {
+  font-weight: 700;
+}
+
+.space-star {
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.22);
+  animation: space-twinkle 3.8s ease-in-out infinite;
+}
+
+.space-rocket {
+  width: 18px;
+  height: 28px;
+  background: linear-gradient(180deg, #ffffff 0%, #ece5dd 75%, #c9beb1 100%);
+  clip-path: polygon(50% 0%, 74% 28%, 74% 72%, 58% 100%, 42% 100%, 26% 72%, 26% 28%);
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.22));
+  animation: rocket-float 2.8s ease-in-out infinite;
+}
+
+.space-trail {
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(243, 146, 65, 0.95) 32%,
+    rgba(243, 146, 65, 0.18) 72%,
+    rgba(243, 146, 65, 0) 100%
+  );
+  box-shadow: 0 0 18px rgba(243, 146, 65, 0.32);
+  animation: trail-pulse 2.8s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+.space-planet-wrap {
+  position: absolute;
+  inset: auto 50% -12vh;
+  width: min(140vw, 48rem);
+  transform: translateX(-50%);
+}
+
+.space-planet-glow {
+  position: absolute;
+  inset: auto 10% 5.2rem;
+  height: 7rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(243, 146, 65, 0.36) 0%, rgba(243, 146, 65, 0) 72%);
+  filter: blur(22px);
+  opacity: 0.82;
+}
+
+.space-planet {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 2.35 / 1;
+  border-radius: 100% 100% 0 0 / 100% 100% 0 0;
+  background:
+    radial-gradient(circle at 50% 14%, rgba(255, 240, 218, 0.98) 0%, rgba(255, 225, 180, 0.96) 12%, rgba(243, 146, 65, 0.96) 38%, rgba(191, 74, 18, 0.94) 58%, rgba(0, 0, 0, 0) 72%),
+    radial-gradient(circle at 50% 48%, rgba(243, 146, 65, 0.26) 0%, rgba(243, 146, 65, 0) 70%);
+  box-shadow:
+    inset 0 16px 40px rgba(255, 230, 198, 0.22),
+    0 -26px 72px rgba(243, 146, 65, 0.14);
+  animation: planet-breathe 5.8s ease-in-out infinite;
+}
+
+@keyframes space-twinkle {
+  0%,
+  100% {
+    opacity: 0.22;
+    transform: scale(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes rocket-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes trail-pulse {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: scaleY(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleY(1.02);
+  }
+}
+
+@keyframes planet-breathe {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
 @media (max-width: 640px) {
   .surface-panel {
     box-shadow: 0 22px 48px rgba(17, 17, 17, 0.07);
@@ -166,5 +291,15 @@ textarea {
     gap: 0.18rem;
     font-size: 1.72rem;
     letter-spacing: -0.06em;
+  }
+
+  .space-planet-wrap {
+    inset: auto 50% -10vh;
+    width: 142vw;
+  }
+
+  .space-planet-glow {
+    inset: auto 12% 4rem;
+    height: 5.5rem;
   }
 }

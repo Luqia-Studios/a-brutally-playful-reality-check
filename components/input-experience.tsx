@@ -2,8 +2,6 @@
 
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BrandMark } from "@/components/brand-mark";
-import { MeterArc } from "@/components/meter-arc";
 import { useViewportMetrics } from "@/lib/use-viewport-metrics";
 import {
   MAX_PLAN_LENGTH,
@@ -11,6 +9,27 @@ import {
   PLAN_SESSION_KEY,
   SAMPLE_INPUTS
 } from "@/lib/analyze-plan";
+
+const HOME_STARS = [
+  { top: "6%", left: "8%", size: 2, delay: "0.2s", duration: "3.4s" },
+  { top: "8%", left: "21%", size: 1.8, delay: "1.3s", duration: "3.8s" },
+  { top: "10%", left: "36%", size: 2.4, delay: "0.8s", duration: "4.2s" },
+  { top: "12%", left: "62%", size: 1.8, delay: "1.1s", duration: "4s" },
+  { top: "7%", left: "78%", size: 2.2, delay: "2.1s", duration: "3.6s" },
+  { top: "17%", left: "13%", size: 1.8, delay: "1.7s", duration: "3.5s" },
+  { top: "20%", left: "70%", size: 2.4, delay: "0.9s", duration: "4.1s" },
+  { top: "27%", left: "84%", size: 1.8, delay: "2.3s", duration: "3.9s" },
+  { top: "33%", left: "17%", size: 2.2, delay: "0.4s", duration: "4.3s" },
+  { top: "38%", left: "58%", size: 2, delay: "1.4s", duration: "3.4s" },
+  { top: "44%", left: "8%", size: 1.8, delay: "2.5s", duration: "4.2s" },
+  { top: "49%", left: "91%", size: 2.2, delay: "0.6s", duration: "3.7s" },
+  { top: "58%", left: "28%", size: 2.4, delay: "1.9s", duration: "4.1s" },
+  { top: "62%", left: "73%", size: 1.8, delay: "0.7s", duration: "3.8s" },
+  { top: "71%", left: "15%", size: 2.1, delay: "1.2s", duration: "4.3s" },
+  { top: "76%", left: "83%", size: 2.3, delay: "2.4s", duration: "3.6s" },
+  { top: "84%", left: "10%", size: 1.9, delay: "0.5s", duration: "4.4s" },
+  { top: "87%", left: "55%", size: 2.2, delay: "2s", duration: "3.5s" }
+] as const;
 
 export function InputExperience() {
   const router = useRouter();
@@ -46,9 +65,7 @@ export function InputExperience() {
     textareaRef.current?.focus();
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  function submitPlan() {
     if (!isValid) {
       textareaRef.current?.focus();
       return;
@@ -59,113 +76,116 @@ export function InputExperience() {
     router.push("/risultato");
   }
 
-  return (
-    <main className="viewport-shell overflow-x-hidden overflow-y-auto lg:overflow-y-hidden">
-      <div
-        className={`mx-auto flex max-w-6xl flex-col px-4 sm:px-8 lg:px-10 ${
-          keyboardOpen ? "min-h-full py-4 sm:py-6 lg:py-8" : "min-h-full py-4 sm:py-6 lg:h-full lg:py-8"
-        }`}
-      >
-        <header className={`${keyboardOpen ? "pb-3" : "pb-3 sm:pb-5"}`}>
-          <BrandMark />
-        </header>
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    submitPlan();
+  }
 
+  return (
+    <main className="viewport-shell relative overflow-x-hidden overflow-y-auto bg-black text-[#F4EDE5]">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        {HOME_STARS.map((star, index) => (
+          <span
+            key={`${star.left}-${star.top}-${index}`}
+            className="space-star"
+            style={{
+              top: star.top,
+              left: star.left,
+              width: `${star.size}px`,
+              height: `${star.size}px`,
+              animationDelay: star.delay,
+              animationDuration: star.duration
+            }}
+          />
+        ))}
+
+        <div className={`space-planet-wrap ${keyboardOpen ? "opacity-35" : ""}`}>
+          <div className="space-planet-glow" />
+          <div className="space-planet" />
+        </div>
+      </div>
+
+      <div className="relative z-10 mx-auto flex min-h-full w-full max-w-[28rem] flex-col px-6 pb-8 pt-8 sm:max-w-[31rem] sm:px-8 sm:pb-10 sm:pt-10 lg:max-w-[72rem] lg:px-10">
         <section
-          className={`grid min-h-0 flex-1 ${
-            keyboardOpen
-              ? "items-start gap-3 sm:gap-6 lg:items-center lg:gap-14"
-              : "items-stretch gap-3 sm:gap-8 lg:items-center lg:gap-14"
-          } lg:grid-cols-[0.42fr_0.58fr]`}
+          className={`mx-auto flex w-full max-w-[22rem] flex-1 flex-col items-center text-center sm:max-w-[24rem] ${
+            keyboardOpen ? "justify-start gap-4" : "justify-center gap-6"
+          } lg:max-w-[26rem]`}
         >
           <div
-            className={`hidden min-h-0 flex-col lg:flex ${
-              keyboardOpen ? "justify-start gap-3" : "justify-start gap-3 sm:gap-5 lg:justify-center lg:gap-6"
-            }`}
+            className={`space-y-2 ${keyboardOpen ? "animate-reveal pt-1" : "animate-reveal pt-4"}`}
+            style={{ animationDelay: "120ms" }}
           >
-            <div className="max-w-[18rem] space-y-3">
-              <p className="text-[20px] leading-8 text-black/54">Scrivilo. Vediamo.</p>
-            </div>
-
-            <div className="hidden lg:block">
-              <MeterArc score={64} size="sm" label="Anteprima" showScale={false} />
-            </div>
-          </div>
-
-          <div className="flex min-h-0 w-full items-stretch lg:h-full lg:items-center lg:justify-end">
-            <div className="surface-panel flex min-h-[min(52svh,31rem)] w-full flex-1 flex-col rounded-[30px] p-4 sm:p-5 lg:h-full lg:max-w-[38rem] lg:min-h-[min(74svh,48rem)] lg:flex-none lg:rounded-[34px] lg:p-6">
-              <form className="flex flex-1 flex-col lg:h-full" onSubmit={handleSubmit}>
-                <div className="flex min-h-0 flex-1 flex-col gap-3.5 sm:gap-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <label htmlFor="plan" className="text-[18px] font-medium text-text sm:text-[19px]">
-                      Il tuo piano
-                    </label>
-                    <span className="text-[12px] uppercase tracking-[0.18em] text-black/30 sm:text-[13px]">
-                      {trimmed.length}/{MAX_PLAN_LENGTH}
-                    </span>
-                  </div>
-
-                  <textarea
-                    id="plan"
-                    ref={textareaRef}
-                    value={draft}
-                    maxLength={MAX_PLAN_LENGTH}
-                    rows={6}
-                    onChange={(event) => setDraft(event.target.value)}
-                    placeholder={SAMPLE_INPUTS[placeholderIndex]}
-                    className={`w-full resize-none rounded-[28px] border hairline bg-[#FBFAF7] px-5 tracking-[-0.015em] text-text outline-none transition placeholder:text-black/28 focus:border-[#D8D1C6] focus:bg-white ${
-                      keyboardOpen
-                        ? "min-h-[128px] py-4 text-[18px] leading-7"
-                        : "min-h-[196px] py-5 text-[19px] leading-8 sm:min-h-[220px] sm:py-5 sm:text-[21px] sm:leading-8"
-                    }`}
-                  />
-
-                  <div className={`space-y-4 ${keyboardOpen ? "hidden sm:block" : ""}`}>
-                    <button
-                      type="button"
-                      onClick={handleExample}
-                      className="w-full rounded-[22px] border hairline bg-[#FBFAF7] px-4 py-3.5 text-left text-[16px] text-black/58 transition hover:bg-white hover:text-text sm:text-[18px]"
-                    >
-                      Prova un esempio
-                    </button>
-                  </div>
-                </div>
-
-                <div
-                  className={`space-y-3 ${
-                    keyboardOpen
-                      ? "mt-3 border-t hairline pt-3 sm:mt-4 sm:border-0 sm:pt-0"
-                      : "mt-4"
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-3">
-                    {isTooShort ? (
-                      <p className="text-[14px] text-[#AE5A39] sm:text-[16px]">Serve un po&apos; piu contesto.</p>
-                    ) : (
-                      <p className="text-[14px] text-black/38 sm:text-[16px]">20-280 caratteri</p>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={handleExample}
-                      className={`text-[14px] font-medium text-black/56 transition hover:text-text sm:text-[16px] ${
-                        keyboardOpen ? "sm:inline-flex" : "hidden"
-                      }`}
-                    >
-                      Esempio
-                    </button>
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={!isValid || isSubmitting}
-                    className="w-full rounded-full bg-text px-5 py-3.5 text-[16px] font-medium text-white transition hover:bg-[#262626] disabled:cursor-not-allowed disabled:bg-[#A6A199] sm:py-4 sm:text-[18px]"
-                  >
-                    {isSubmitting ? "Un attimo..." : "Valuta il mio piano"}
-                  </button>
-                </div>
-              </form>
+            <p className="space-home-top text-[18px] leading-none tracking-[-0.03em] text-[#D6C9BD] sm:text-[20px]">
+              A brutally
+            </p>
+            <div className="space-y-0.5 leading-[0.9]">
+              <p className="space-home-playful text-[62px] text-[#F39241] sm:text-[70px]">playful</p>
+              <p className="space-home-reality text-[52px] text-[#F2EEE8] sm:text-[58px]">
+                reality check
+              </p>
             </div>
           </div>
+
+          <div
+            className={`flex flex-col items-center ${keyboardOpen ? "gap-2" : "gap-3"} animate-reveal`}
+            style={{ animationDelay: "260ms" }}
+          >
+            <div className="space-rocket" />
+            <div className={`space-trail ${keyboardOpen ? "h-12" : "h-24 sm:h-28"}`} />
+          </div>
+
+          <form
+            onSubmit={handleSubmit}
+            className="w-full animate-reveal"
+            style={{ animationDelay: "360ms" }}
+          >
+            <div className="rounded-[18px] border border-[#F39241] bg-black/75 p-3 shadow-[0_0_0_1px_rgba(243,146,65,0.12),0_0_32px_rgba(243,146,65,0.1)] backdrop-blur-sm transition duration-300 focus-within:shadow-[0_0_0_1px_rgba(243,146,65,0.28),0_0_42px_rgba(243,146,65,0.14)]">
+              <textarea
+                ref={textareaRef}
+                value={draft}
+                maxLength={MAX_PLAN_LENGTH}
+                rows={2}
+                onChange={(event) => setDraft(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter" && !event.shiftKey) {
+                    event.preventDefault();
+                    submitPlan();
+                  }
+                }}
+                placeholder={SAMPLE_INPUTS[placeholderIndex].toLowerCase()}
+                className="min-h-[92px] w-full resize-none bg-transparent px-1 py-1 text-left text-[19px] italic leading-8 tracking-[-0.02em] text-[#E8DED4] outline-none placeholder:text-[#8E847C] sm:min-h-[104px] sm:text-[22px]"
+              />
+            </div>
+
+            <div className="mt-3 flex items-center justify-between gap-4 text-[12px] uppercase tracking-[0.18em] text-[#A59689]">
+              <button
+                type="button"
+                onClick={handleExample}
+                className="transition hover:text-[#F39241]"
+              >
+                Prova un esempio
+              </button>
+              <span>
+                {trimmed.length}/{MAX_PLAN_LENGTH}
+              </span>
+            </div>
+
+            {isTooShort ? (
+              <p className="mt-2 text-left text-[12px] text-[#D88A61]">
+                Serve un po&apos; piu contesto.
+              </p>
+            ) : null}
+
+            <div className="mt-5 flex justify-center">
+              <button
+                type="submit"
+                disabled={!isValid || isSubmitting}
+                className="rounded-full border border-[#F39241] bg-[#F39241]/10 px-6 py-3 text-[12px] font-medium uppercase tracking-[0.22em] text-[#F5EDE5] transition duration-300 hover:bg-[#F39241]/20 disabled:cursor-not-allowed disabled:border-white/12 disabled:bg-white/5 disabled:text-white/38"
+              >
+                {isSubmitting ? "Un attimo" : "Valuta il piano"}
+              </button>
+            </div>
+          </form>
         </section>
       </div>
     </main>
