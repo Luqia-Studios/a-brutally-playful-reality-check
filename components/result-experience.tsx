@@ -185,7 +185,7 @@ export function ResultExperience() {
   }, [result]);
 
   const evaluationLead = result ? result.verdict : "";
-  const evaluationText = result ? `${result.sintesi} ${result.puntoCieco}` : "";
+  const evaluationText = result ? `${result.sintesi} ${result.fraseFinale}` : "";
 
   function resetShareState() {
     if (shareResetRef.current) {
@@ -224,7 +224,7 @@ export function ResultExperience() {
       return;
     }
 
-    await copyPayload(evaluationText);
+    await copyPayload(`${result.verdict}. ${evaluationText}`);
   }
 
   if (!result) {
