@@ -46,7 +46,7 @@ type Flags = {
 const CAT = [{ max: 20, label: "Fin troppo lucido" }, { max: 40, label: "Ambizioso ma plausibile" }, { max: 60, label: "Instabile ma difendibile" }, { max: 80, label: "Delirante con metodo" }, { max: 100, label: "Iconicamente delirante" }];
 const THEME_LABEL: Record<Theme, string> = { relazioni: "relazioni", lavoro: "lavoro", soldi: "soldi", viaggio: "viaggio", acquisto: "acquisto", fuga: "fuga / cambio vita", creativo: "progetto creativo", misto: "misto", altro: "altro" };
 const DRIVER_LABEL: Record<Driver, string> = { fuga: "fuga", impulsivita: "impulsivita", nostalgia: "nostalgia", ego: "ego", romanticismo: "romanticismo", saturazione: "saturazione", rivalsa: "rivalsa", noia: "noia", reset: "bisogno di reset", controllo: "fantasia di controllo" };
-const SAFETY = { violence: ["uccido", "ammazzo", "picchio", "violenza", "aggressione"], abuse: ["costringo", "obbligo", "ricatto", "minaccio", "coercizione"], drugs: ["cocaina", "eroina", "mdma", "spaccio", "droga illegale"], crime: ["rubare", "truffa", "truffare", "evasione", "documenti falsi", "reato"], stalking: ["stalking", "la seguo", "lo seguo", "la controllo", "lo controllo"], self: ["suicidio", "uccidermi", "ammazzarmi", "mi faccio male", "mi taglio", "autolesionismo"], noncons: ["senza consenso", "non consensuale", "minorenne", "minori", "sfruttamento", "revenge porn"], toxic: ["candeggina", "varechina", "ammoniaca", "detersivo", "detergente", "solvente", "veleno", "disinfettante", "alcool denaturato", "acido muriatico", "antigelo"] } as const;
+const SAFETY = { violence: ["uccido", "ammazzo", "picchio", "picchiare", "picchiarlo", "picchiarla", "menare", "prendere a pugni", "violenza", "aggressione"], abuse: ["costringo", "obbligo", "ricatto", "minaccio", "coercizione"], drugs: ["cocaina", "eroina", "mdma", "spaccio", "droga illegale"], crime: ["rubare", "truffa", "truffare", "evasione", "documenti falsi", "reato"], stalking: ["stalking", "la seguo", "lo seguo", "la controllo", "lo controllo"], self: ["suicidio", "uccidermi", "ammazzarmi", "mi faccio male", "mi taglio", "autolesionismo"], noncons: ["senza consenso", "non consensuale", "minorenne", "minori", "bambino", "bambini", "ragazzino", "ragazzini", "sfruttamento", "revenge porn"], toxic: ["candeggina", "varechina", "ammoniaca", "detersivo", "detergente", "solvente", "veleno", "disinfettante", "alcool denaturato", "acido muriatico", "antigelo"] } as const;
 const T = {
   relazioni: ["le scrivo", "gli scrivo", "le riscrivo", "gli riscrivo", "ex", "relazione", "appuntamento"],
   lavoro: ["lavoro", "ufficio", "mi licenzio", "carriera", "colloquio", "freelance"],
@@ -71,13 +71,48 @@ const D = {
 const P = { plan: ["piano", "budget", "ricerca", "test", "step", "timeline", "conti", "preventivo", "validare", "provo"], support: ["appoggi", "rete", "contatti", "socio", "partner", "insieme a", "con un amico"], budget: ["budget", "risparmi", "risparmio", "cassa", "capitale", "soldi da parte"], timeline: ["entro", "fra", "tra", "settimana", "settimane", "mese", "mesi", "anno", "anni"], gradual: ["prima testo", "prima provo", "graduale", "part time", "senza mollare tutto", "con calma"], language: ["parlo inglese", "parlo la lingua", "inglese", "spagnolo", "tedesco", "portoghese"], docs: ["visto", "documenti", "permesso", "ammissione", "sono ammesso", "gia ammesso"], job: ["contratto", "offerta", "gia assunto", "lavoro gia", "master gia ammesso"], clients: ["clienti", "cliente", "richieste", "lead", "domanda", "preordini"], poetic: ["sparisco", "ricomincio da zero", "nuova vita", "reset", "seguo l'istinto", "destino", "sogno", "cuore", "visione", "van", "giro del mondo"], urgent: ["subito", "domani", "adesso", "ora", "la prossima settimana", "mollo tutto", "lascio tutto", "lo faccio e basta", "senza pensarci"] } as const;
 
 const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, Math.round(v)));
-const normalize = (v: string) => v.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/[â€™]/g, "'");
+const normalize = (v: string) => v.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/[’‘`]/g, "'");
 const countHits = (t: string, p: readonly string[]) => p.reduce((n, x) => n + Number(t.includes(x)), 0);
 const hasAny = (t: string, p: readonly string[]) => p.some((x) => t.includes(x));
 const hash = (t: string) => Math.abs([...t].reduce((n, c) => ((n * 31 + c.charCodeAt(0)) | 0), 0));
 const pick = <T,>(a: T[], s: number, o = 0) => a[(s + o) % a.length];
 const bandOf = (score: number): Band => score <= 20 ? "grounded" : score <= 40 ? "plausible" : score <= 60 ? "unstable" : score <= 80 ? "delusional" : "iconic";
 const catOf = (score: number) => CAT.find((x) => score <= x.max)?.label ?? "Iconicamente delirante";
+
+function polishItalian(text: string) {
+  return text
+    .replace(/\bc'e\b/g, "c'è")
+    .replace(/\bC'e\b/g, "C'è")
+    .replace(/\bpiu\b/g, "più")
+    .replace(/\bPiu\b/g, "Più")
+    .replace(/\bgia\b/g, "già")
+    .replace(/\bGia\b/g, "Già")
+    .replace(/\bpero\b/g, "però")
+    .replace(/\bPero\b/g, "Però")
+    .replace(/\bperche\b/g, "perché")
+    .replace(/\bPerche\b/g, "Perché")
+    .replace(/\brealta\b/g, "realtà")
+    .replace(/\bRealta\b/g, "Realtà")
+    .replace(/\boperativita\b/g, "operatività")
+    .replace(/\bOperativita\b/g, "Operatività")
+    .replace(/\bsostenibilita\b/g, "sostenibilità")
+    .replace(/\bSostenibilita\b/g, "Sostenibilità")
+    .replace(/\bfattibilita\b/g, "fattibilità")
+    .replace(/\bFattibilita\b/g, "Fattibilità")
+    .replace(/\bidentita\b/g, "identità")
+    .replace(/\bIdentita\b/g, "Identità")
+    .replace(/\bvelocita\b/g, "velocità")
+    .replace(/\bVelocita\b/g, "Velocità")
+    .replace(/L'intuizione c'e/g, "L'intuizione c'è")
+    .replace(/L'idea c'e/g, "L'idea c'è")
+    .replace(/La visione c'e/g, "La visione c'è")
+    .replace(/La narrativa e piu pronta dell'operativita/g, "La narrativa è più pronta dell'operatività")
+    .replace(/La narrativa e più pronta dell'operatività/g, "La narrativa è più pronta dell'operatività")
+    .replace(/Qui il problema e un rischio tossico reale/g, "Qui il problema è un rischio tossico reale")
+    .replace(/Qui il problema non e la visione/g, "Qui il problema non è la visione")
+    .replace(/Il gesto e sentimentale/g, "Il gesto è sentimentale")
+    .replace(/L'ambizione c'e/g, "L'ambizione c'è");
+}
 
 function detectSafety(t: string) {
   const violent = hasAny(t, SAFETY.violence), abusive = hasAny(t, SAFETY.abuse), drugs = hasAny(t, SAFETY.drugs), crime = hasAny(t, SAFETY.crime), stalking = hasAny(t, SAFETY.stalking), self = hasAny(t, SAFETY.self), noncons = hasAny(t, SAFETY.noncons);
@@ -167,7 +202,7 @@ function safetyResult(input: string, seed: number, s: ReturnType<typeof detectSa
         : "Rientra nel danno reale.";
   const dissociazione = clamp(s.severity - 2, 85, 98), impulsivita = clamp(58 + (seed % 24), 58, 92), dannoPratico = clamp(s.severity + 4, 90, 100), poetico = clamp(10 + (seed % 12), 8, 26);
   const score = clamp(dissociazione * 0.3 + impulsivita * 0.25 + dannoPratico * 0.25 + poetico * 0.2, 85, 100);
-  return { piano: input.trim(), tema: "illegale / dannoso", driver: DRIVER_LABEL.controllo, safetyMode: true, blocked: s.blocked, score, categoria: s.blocked ? "Danno reale" : "Alta allerta", verdict, sintesi: `${verdict} ${tail}`, cosaRegge: "Qui non c'e nulla da glamourizzare.", cosaNonRegge: "Non regge perche il rischio concreto viene prima di qualsiasi narrativa.", puntoCieco: "Stai trattando un danno reale come se fosse ancora una scena da raccontare.", fraseFinale: pick(["Qui non serve fascino. Serve fermarsi.", "Non c'e niente di cinematografico nel danno.", "Il rischio concreto cancella ogni glamour."], seed), tratti: ["pericoloso", "lesivo", "grave"], indicatori: { dissociazione, impulsivita, dannoPratico, poetico }, shareText: `Indice di delirio: ${score}/100 - ${verdict} ${tail}` };
+  return { piano: input.trim(), tema: "illegale / dannoso", driver: DRIVER_LABEL.controllo, safetyMode: true, blocked: s.blocked, score, categoria: s.blocked ? "Danno reale" : "Alta allerta", verdict: polishItalian(verdict), sintesi: polishItalian(`${verdict} ${tail}`), cosaRegge: polishItalian("Qui non c'e nulla da glamourizzare."), cosaNonRegge: polishItalian("Non regge perche il rischio concreto viene prima di qualsiasi narrativa."), puntoCieco: polishItalian("Stai trattando un danno reale come se fosse ancora una scena da raccontare."), fraseFinale: polishItalian(pick(["Qui non serve fascino. Serve fermarsi.", "Non c'e niente di cinematografico nel danno.", "Il rischio concreto cancella ogni glamour."], seed)), tratti: ["pericoloso", "lesivo", "grave"], indicatori: { dissociazione, impulsivita, dannoPratico, poetico }, shareText: polishItalian(`Indice di delirio: ${score}/100 - ${verdict} ${tail}`) };
 }
 
 function buildVerdict(theme: Theme, band: Band, scenario: Scenario, top: IndicatorKey, seed: number) {
@@ -263,5 +298,5 @@ export function analyzePlan(input: string): AnalysisResult {
   const score = clamp(dissociazione * 0.3 + impulsivita * 0.25 + dannoPratico * 0.25 + poetico * 0.2, 1, 100);
   const indicatori = { dissociazione, impulsivita, dannoPratico, poetico }, top = (Object.entries(indicatori).sort((a, b) => b[1] - a[1])[0]?.[0] as IndicatorKey) ?? "dissociazione";
   const verdict = buildVerdict(theme, bandOf(score), scenario, top, seed), sintesi = buildSintesi(theme, driver, f, scenario, seed), cosaRegge = buildCosaRegge(f, theme), cosaNonRegge = buildCosaNonRegge(f, scenario), puntoCieco = buildBlindSpot(driver, scenario, top), fraseFinale = buildFinalLine(theme, driver, scenario, seed), tratti = buildTraits(theme, driver, top, score, seed);
-  return { piano, tema: THEME_LABEL[theme], driver: DRIVER_LABEL[driver], safetyMode: false, blocked: false, score, categoria: catOf(score), verdict, sintesi, cosaRegge, cosaNonRegge, puntoCieco, fraseFinale, tratti, indicatori, shareText: `Indice di delirio: ${score}/100 su ${APP_NAME} - ${verdict}.` };
+  return { piano, tema: THEME_LABEL[theme], driver: DRIVER_LABEL[driver], safetyMode: false, blocked: false, score, categoria: catOf(score), verdict: polishItalian(verdict), sintesi: polishItalian(sintesi), cosaRegge: polishItalian(cosaRegge), cosaNonRegge: polishItalian(cosaNonRegge), puntoCieco: polishItalian(puntoCieco), fraseFinale: polishItalian(fraseFinale), tratti, indicatori, shareText: polishItalian(`Indice di delirio: ${score}/100 su ${APP_NAME} - ${verdict}.`) };
 }

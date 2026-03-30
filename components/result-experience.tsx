@@ -178,7 +178,7 @@ export function ResultExperience() {
 
     return [
       { label: "Dissociazione", value: result.indicatori.dissociazione },
-      { label: "Impulsivita", value: result.indicatori.impulsivita },
+      { label: "Impulsività", value: result.indicatori.impulsivita },
       { label: "Danno pratico", value: result.indicatori.dannoPratico },
       { label: "Poetico", value: result.indicatori.poetico }
     ];
