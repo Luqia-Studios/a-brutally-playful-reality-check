@@ -79,11 +79,11 @@ function useAnimatedNumber(target: number) {
 
 function LoadingScreen({ index }: { index: number }) {
   return (
-    <main className="viewport-shell">
-      <div className="mx-auto flex h-full max-w-6xl flex-col px-4 py-4 sm:px-8 sm:py-6 lg:px-10 lg:py-8">
-        <header className="flex items-start justify-between pb-3 sm:pb-5">
+    <main className="viewport-shell overflow-y-auto lg:overflow-y-hidden">
+      <div className="mx-auto flex min-h-full max-w-6xl flex-col px-4 py-4 sm:px-8 sm:py-6 lg:h-full lg:px-10 lg:py-8">
+        <header className="flex flex-col gap-2 pb-3 sm:flex-row sm:items-start sm:justify-between sm:pb-5">
           <BrandMark />
-          <p className="text-[15px] text-black/44">Analisi</p>
+          <p className="self-end text-[15px] text-black/44 sm:self-auto">Analisi</p>
         </header>
 
         <section className="flex flex-1 items-center justify-center">
@@ -240,17 +240,21 @@ export function ResultExperience() {
   }
 
   return (
-    <main className="viewport-shell">
-      <div className="mx-auto flex h-full max-w-6xl flex-col px-4 py-4 sm:px-8 sm:py-6 lg:px-10 lg:py-8">
-        <header className="flex items-start justify-between pb-3 sm:pb-5">
+    <main className="viewport-shell overflow-y-auto lg:overflow-y-hidden">
+      <div className="mx-auto flex min-h-full max-w-6xl flex-col px-4 py-4 sm:px-8 sm:py-6 lg:h-full lg:px-10 lg:py-8">
+        <header className="flex flex-col gap-2 pb-3 sm:flex-row sm:items-start sm:justify-between sm:pb-5">
           <BrandMark />
-          <button type="button" onClick={handleBackHome} className="text-[15px] text-black/48 transition hover:text-text">
+          <button
+            type="button"
+            onClick={handleBackHome}
+            className="self-end text-[15px] text-black/48 transition hover:text-text sm:self-auto"
+          >
             Torna all&apos;inizio
           </button>
         </header>
 
         <section className="flex min-h-0 flex-1 items-stretch">
-          <div className="surface-panel grid h-full min-h-0 w-full gap-4 overflow-hidden rounded-[32px] p-4 sm:gap-5 sm:p-5 lg:grid-cols-[0.45fr_0.55fr] lg:gap-8 lg:rounded-[36px] lg:p-6">
+          <div className="surface-panel grid w-full gap-4 overflow-visible rounded-[32px] p-4 sm:gap-5 sm:p-5 lg:h-full lg:min-h-0 lg:grid-cols-[0.45fr_0.55fr] lg:gap-8 lg:overflow-hidden lg:rounded-[36px] lg:p-6">
             <div className="order-2 flex min-h-0 flex-col justify-between gap-4 lg:order-1 lg:gap-5">
               <div className="space-y-4">
                 <div className="space-y-3">

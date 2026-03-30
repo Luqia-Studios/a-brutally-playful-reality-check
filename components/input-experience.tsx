@@ -60,15 +60,19 @@ export function InputExperience() {
   }
 
   return (
-    <main className={`viewport-shell overflow-x-hidden ${keyboardOpen ? "overflow-y-auto" : ""}`}>
+    <main className="viewport-shell overflow-x-hidden overflow-y-auto lg:overflow-y-hidden">
       <div
         className={`mx-auto flex max-w-6xl flex-col px-4 sm:px-8 lg:px-10 ${
-          keyboardOpen ? "min-h-full py-4 sm:py-6 lg:py-8" : "h-full py-4 sm:py-6 lg:py-8"
+          keyboardOpen ? "min-h-full py-4 sm:py-6 lg:py-8" : "min-h-full py-4 sm:py-6 lg:h-full lg:py-8"
         }`}
       >
-        <header className={`flex items-start justify-between ${keyboardOpen ? "pb-3" : "pb-3 sm:pb-5"}`}>
+        <header
+          className={`flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between ${
+            keyboardOpen ? "pb-3" : "pb-3 sm:pb-5"
+          }`}
+        >
           <BrandMark />
-          <p className="pt-1 text-[12px] uppercase tracking-[0.18em] text-black/34 sm:text-sm sm:normal-case sm:tracking-normal">
+          <p className="self-end pt-1 text-[12px] uppercase tracking-[0.18em] text-black/34 sm:self-auto sm:text-sm sm:normal-case sm:tracking-normal">
             Esperimento 01
           </p>
         </header>
@@ -94,9 +98,9 @@ export function InputExperience() {
             </div>
           </div>
 
-          <div className="flex min-h-0 h-full items-stretch lg:items-center lg:justify-end">
-            <div className="surface-panel flex h-full min-h-[min(58svh,34rem)] w-full flex-1 flex-col rounded-[30px] p-4 sm:min-h-0 sm:p-5 lg:max-w-[38rem] lg:min-h-[min(74svh,48rem)] lg:flex-none lg:rounded-[34px] lg:p-6">
-              <form className="flex h-full flex-1 flex-col" onSubmit={handleSubmit}>
+          <div className="flex min-h-0 w-full items-stretch lg:h-full lg:items-center lg:justify-end">
+            <div className="surface-panel flex min-h-[min(58svh,34rem)] w-full flex-1 flex-col rounded-[30px] p-4 sm:p-5 lg:h-full lg:max-w-[38rem] lg:min-h-[min(74svh,48rem)] lg:flex-none lg:rounded-[34px] lg:p-6">
+              <form className="flex flex-1 flex-col lg:h-full" onSubmit={handleSubmit}>
                 <div className="flex min-h-0 flex-1 flex-col gap-4">
                   <div className="flex items-center justify-between gap-4">
                     <label htmlFor="plan" className="text-[21px] font-medium text-text sm:text-[19px]">
