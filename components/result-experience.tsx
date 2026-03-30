@@ -185,9 +185,7 @@ export function ResultExperience() {
     ];
   }, [result]);
 
-  const evaluationText = result
-    ? `${result.verdict}. ${result.sintesi} ${result.fraseFinale}`
-    : "";
+  const evaluationText = result ? `${result.verdict}. ${result.fraseFinale}` : "";
 
   function resetShareState() {
     if (shareResetRef.current) {
@@ -250,68 +248,63 @@ export function ResultExperience() {
     <main className="viewport-shell relative overflow-x-hidden overflow-y-auto bg-black text-[#F4EDE5]">
       <SpaceBackdrop />
 
-      <div className="relative z-10 mx-auto flex min-h-full w-full max-w-[30rem] flex-col px-6 pb-10 pt-8 sm:max-w-[34rem] sm:px-8 sm:pb-12 sm:pt-10 lg:max-w-[74rem] lg:px-10">
-        <header className="animate-reveal" style={{ animationDelay: "80ms" }}>
-          <div className="flex items-start justify-between gap-4">
-            <SpaceWordmark compact />
-            <button
-              type="button"
-              onClick={handleRetry}
-              className="pt-2 text-[12px] uppercase tracking-[0.18em] text-[#A59689] transition hover:text-[#F39241]"
-            >
-              Riprova
-            </button>
-          </div>
-        </header>
+      <div className="relative z-10 mx-auto flex min-h-full w-full max-w-[30rem] flex-col px-5 py-5 sm:max-w-[34rem] sm:px-8 sm:py-8 lg:max-w-[74rem] lg:px-10">
+        <section className="mx-auto flex w-full max-w-[23rem] flex-1 items-stretch text-center sm:max-w-[26rem] lg:max-w-[66rem] lg:text-left">
+          <div
+            className="animate-reveal flex h-full w-full flex-col justify-between rounded-[28px] border border-white/10 bg-black/56 p-4 shadow-[0_0_0_1px_rgba(255,255,255,0.03),0_0_36px_rgba(243,146,65,0.08)] backdrop-blur-sm sm:p-5 lg:grid lg:grid-cols-[0.9fr_1.1fr] lg:gap-8"
+            style={{ animationDelay: "140ms" }}
+          >
+            <div className="flex flex-col justify-between gap-5 lg:gap-6">
+              <div className="space-y-3">
+                <div className="flex items-end justify-center gap-2 lg:justify-start">
+                  <span className="space-home-playful text-[106px] leading-none text-[#F39241] sm:text-[118px]">
+                    {animatedScore}
+                  </span>
+                  <span className="pb-4 text-[17px] uppercase tracking-[0.18em] text-[#C8B9AA]">/100</span>
+                </div>
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[#A59689]">Indice di delirio</p>
+                <p className="text-[12px] uppercase tracking-[0.2em] text-[#F5C393]">{result.categoria}</p>
+              </div>
 
-        <section className="mx-auto flex w-full max-w-[23rem] flex-1 flex-col justify-center gap-5 pt-6 text-center sm:max-w-[26rem] sm:pt-8 lg:max-w-none lg:grid lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:gap-10 lg:text-left">
-          <div className="space-y-5 animate-reveal lg:col-span-2" style={{ animationDelay: "160ms" }}>
-            <div className="flex flex-wrap items-center justify-center gap-2 lg:justify-start">
-              <span className="rounded-full border border-[#F39241] bg-[#F39241]/10 px-3 py-1.5 text-[11px] uppercase tracking-[0.2em] text-[#F5C393]">
-                Indice di delirio {animatedScore}/100
-              </span>
-              <span className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-[11px] uppercase tracking-[0.2em] text-[#C8B9AA]">
-                {result.categoria}
-              </span>
+              <div className="rounded-[22px] border border-[#F39241] bg-black/72 p-4 shadow-[0_0_0_1px_rgba(243,146,65,0.12),0_0_30px_rgba(243,146,65,0.08)]">
+                <p className="text-[22px] italic leading-[1.4] tracking-[-0.02em] text-[#E8DED4] sm:text-[25px]">
+                  {evaluationText}
+                </p>
+              </div>
             </div>
 
-            <div className="rounded-[24px] border border-[#F39241] bg-black/72 p-5 shadow-[0_0_0_1px_rgba(243,146,65,0.12),0_0_34px_rgba(243,146,65,0.08)] backdrop-blur-sm">
-              <p className="text-[11px] uppercase tracking-[0.22em] text-[#A59689]">Valutazione</p>
-              <p className="mt-4 text-[25px] italic leading-[1.45] tracking-[-0.025em] text-[#E8DED4] sm:text-[29px] sm:leading-[1.5]">
-                {evaluationText}
-              </p>
-            </div>
+            <div className="mt-5 flex flex-col justify-between gap-4 lg:mt-0">
+              <div className="grid gap-3 sm:grid-cols-2">
+                {indicators.map((indicator) => (
+                  <IndicatorTile key={indicator.label} label={indicator.label} value={indicator.value} />
+                ))}
+              </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
-              {indicators.map((indicator) => (
-                <IndicatorTile key={indicator.label} label={indicator.label} value={indicator.value} />
-              ))}
-            </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={handleShare}
+                  className="rounded-full border border-[#F39241] bg-[#F39241] px-5 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-black shadow-[0_10px_28px_rgba(243,146,65,0.28)] transition duration-300 hover:bg-[#FFB066]"
+                >
+                  {shareState === "shared" ? "Risultato copiato" : "Condividi"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRetry}
+                  className="rounded-full border border-white/14 bg-white/[0.03] px-5 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-[#F5EDE5] transition duration-300 hover:bg-white/[0.08]"
+                >
+                  Un altro piano
+                </button>
+              </div>
 
-            <div className="grid gap-3 sm:grid-cols-2">
               <button
                 type="button"
-                onClick={handleShare}
-                className="rounded-full border border-[#F39241] bg-[#F39241] px-5 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-black shadow-[0_10px_28px_rgba(243,146,65,0.28)] transition duration-300 hover:bg-[#FFB066]"
+                onClick={handleCopyVerdict}
+                className="text-[12px] uppercase tracking-[0.18em] text-[#A59689] transition hover:text-[#F39241]"
               >
-                {shareState === "shared" ? "Risultato copiato" : "Condividi"}
-              </button>
-              <button
-                type="button"
-                onClick={handleRetry}
-                className="rounded-full border border-white/14 bg-white/[0.03] px-5 py-3.5 text-[12px] font-semibold uppercase tracking-[0.22em] text-[#F5EDE5] transition duration-300 hover:bg-white/[0.08]"
-              >
-                Un altro piano
+                {shareState === "copied" ? "Valutazione copiata" : "Copia la valutazione"}
               </button>
             </div>
-
-            <button
-              type="button"
-              onClick={handleCopyVerdict}
-              className="text-[12px] uppercase tracking-[0.18em] text-[#A59689] transition hover:text-[#F39241]"
-            >
-              {shareState === "copied" ? "Valutazione copiata" : "Copia la valutazione"}
-            </button>
           </div>
         </section>
       </div>
